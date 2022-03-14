@@ -17,6 +17,7 @@ import {
   LimitedTimedFeeCollectModule__factory,
   ModuleGlobals__factory,
   PublishingLogic__factory,
+  WhitelistingLogic__factory,
   RevertCollectModule__factory,
   TimedFeeCollectModule__factory,
   TransparentUpgradeableProxy__factory,
@@ -57,7 +58,11 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
   const interactionLogic = await deployContract(
     new InteractionLogic__factory(deployer).deploy({ nonce: deployerNonce++ })
   );
+  const whitelistingLogic = await deployContract(
+    new WhitelistingLogic__factory(deployer).deploy({ nonce: deployerNonce++ })
+  );
   const hubLibs = {
+    'contracts/libraries/WhitelistingLogic.sol:WhitelistingLogic': whitelistingLogic.address,
     'contracts/libraries/PublishingLogic.sol:PublishingLogic': publishingLogic.address,
     'contracts/libraries/InteractionLogic.sol:InteractionLogic': interactionLogic.address,
   };

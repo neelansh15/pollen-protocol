@@ -22,7 +22,7 @@
     "hardhat:matic": "hardhat --network matic",
     "compile": "SKIP_LOAD=true hardhat clean && SKIP_LOAD=true hardhat compile",
     "console:fork": "MAINNET_FORK=true hardhat console",
-    "format": "prettier --write .",
+    "format": "prettier --write ./contracts/",
     "lint": "eslint ."
   },
   "repository": {

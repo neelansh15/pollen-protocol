@@ -13,6 +13,7 @@ import {
   FollowerOnlyReferenceModule__factory,
   FollowNFT__factory,
   InteractionLogic__factory,
+  WhitelistingLogic__factory,
   LimitedFeeCollectModule__factory,
   LimitedTimedFeeCollectModule__factory,
   ModuleGlobals__factory,
@@ -79,7 +80,13 @@ task('full-deploy-verify', 'deploys the entire Lens Protocol with explorer verif
       [],
       'contracts/libraries/InteractionLogic.sol:InteractionLogic'
     );
+    const whitelistingLogic = await deployWithVerify(
+      new WhitelistingLogic__factory(deployer).deploy({ nonce: deployerNonce++ }),
+      [],
+      'contracts/libraries/WhitelistingLogic.sol:WhitelistingLogic'
+    );
     const hubLibs = {
+      'contracts/libraries/WhitelistingLogic.sol:WhitelistingLogic': whitelistingLogic.address,
       'contracts/libraries/PublishingLogic.sol:PublishingLogic': publishingLogic.address,
       'contracts/libraries/InteractionLogic.sol:InteractionLogic': interactionLogic.address,
     };

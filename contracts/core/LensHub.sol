@@ -9,6 +9,7 @@ import {DataTypes} from '../libraries/DataTypes.sol';
 import {Errors} from '../libraries/Errors.sol';
 import {PublishingLogic} from '../libraries/PublishingLogic.sol';
 import {InteractionLogic} from '../libraries/InteractionLogic.sol';
+import {WhitelistingLogic} from '../libraries/WhitelistingLogic.sol';
 import {LensNFTBase} from './base/LensNFTBase.sol';
 import {LensMultiState} from './base/LensMultiState.sol';
 import {LensHubStorage} from './storage/LensHubStorage.sol';
@@ -98,20 +99,22 @@ contract LensHub is ILensHub, LensNFTBase, VersionedInitializable, LensMultiStat
         _setState(newState);
     }
 
-    ///@inheritdoc ILensHub
+    /// @inheritdoc ILensHub
     function whitelistProfileCreator(address profileCreator, bool whitelist)
         external
         override
         onlyGov
     {
-        _profileCreatorWhitelisted[profileCreator] = whitelist;
-        emit Events.ProfileCreatorWhitelisted(profileCreator, whitelist, block.timestamp);
+        WhitelistingLogic._whitelistProfileCreator(
+            profileCreator,
+            whitelist,
+            _profileCreatorWhitelisted
+        );
     }
 
     /// @inheritdoc ILensHub
     function whitelistFollowModule(address followModule, bool whitelist) external override onlyGov {
-        _followModuleWhitelisted[followModule] = whitelist;
-        emit Events.FollowModuleWhitelisted(followModule, whitelist, block.timestamp);
+        WhitelistingLogic._whitelistFollowModule(followModule, whitelist, _followModuleWhitelisted);
     }
 
     /// @inheritdoc ILensHub
@@ -120,8 +123,11 @@ contract LensHub is ILensHub, LensNFTBase, VersionedInitializable, LensMultiStat
         override
         onlyGov
     {
-        _referenceModuleWhitelisted[referenceModule] = whitelist;
-        emit Events.ReferenceModuleWhitelisted(referenceModule, whitelist, block.timestamp);
+        WhitelistingLogic._whitelistReferenceModule(
+            referenceModule,
+            whitelist,
+            _referenceModuleWhitelisted
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -130,8 +136,11 @@ contract LensHub is ILensHub, LensNFTBase, VersionedInitializable, LensMultiStat
         override
         onlyGov
     {
-        _collectModuleWhitelisted[collectModule] = whitelist;
-        emit Events.CollectModuleWhitelisted(collectModule, whitelist, block.timestamp);
+        WhitelistingLogic._whitelistCollectModule(
+            collectModule,
+            whitelist,
+            _collectModuleWhitelisted
+        );
     }
 
     /// *********************************

@@ -25,6 +25,7 @@ import {
   Helper,
   Helper__factory,
   InteractionLogic__factory,
+  WhitelistingLogic__factory,
   LensHub,
   LensHub__factory,
   LimitedFeeCollectModule,
@@ -149,7 +150,9 @@ before(async function () {
   );
   const publishingLogic = await new PublishingLogic__factory(deployer).deploy();
   const interactionLogic = await new InteractionLogic__factory(deployer).deploy();
+  const whitelistingLogic = await new WhitelistingLogic__factory(deployer).deploy();
   hubLibs = {
+    'contracts/libraries/WhitelistingLogic.sol:WhitelistingLogic': whitelistingLogic.address,
     'contracts/libraries/PublishingLogic.sol:PublishingLogic': publishingLogic.address,
     'contracts/libraries/InteractionLogic.sol:InteractionLogic': interactionLogic.address,
   };

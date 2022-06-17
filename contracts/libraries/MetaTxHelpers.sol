@@ -18,12 +18,12 @@ library MetaTxHelpers {
      * @param sig the EIP712Signature struct containing the token owner's signature.
      */
     function basePermit(
+        address owner,
         address spender,
         uint256 tokenId,
         DataTypes.EIP712Signature calldata sig
     ) internal {
         if (spender == address(0)) revert Errors.ZeroSpender();
-        address owner = Helpers.unsafeOwnerOf(tokenId);
         _validateRecoveredAddress(
             _calculateDigest(
                 keccak256(

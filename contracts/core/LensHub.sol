@@ -9,15 +9,17 @@ import {Events} from '../libraries/Events.sol';
 import {Helpers} from '../libraries/Helpers.sol';
 import {DataTypes} from '../libraries/DataTypes.sol';
 import {Errors} from '../libraries/Errors.sol';
-import {GeneralLib} from '../libraries/GeneralLib.sol';
 import {ProfileTokenURILogic} from '../libraries/ProfileTokenURILogic.sol';
 import '../libraries/Constants.sol';
 
 import {LensHubNFTBase} from './base/LensHubNFTBase.sol';
 import {LensMultiState} from './base/LensMultiState.sol';
 import {LensHubStorage} from './storage/LensHubStorage.sol';
+import {LensHubDelegation} from './LensHubDelegation.sol';
 import {VersionedInitializable} from '../upgradeability/VersionedInitializable.sol';
+
 import {IERC721Enumerable} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
+import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
 /**
  * @title LensHub
@@ -38,10 +40,12 @@ contract LensHub is
     LensHubStorage,
     ILensHub
 {
+    using Address for address;
     uint256 internal constant REVISION = 1;
 
     address internal immutable FOLLOW_NFT_IMPL;
     address internal immutable COLLECT_NFT_IMPL;
+    address internal immutable LENS_HUB_DELEGATION;
 
     /**
      * @dev This modifier reverts if the caller is not the configured governance address.
@@ -57,11 +61,17 @@ contract LensHub is
      * @param followNFTImpl The follow NFT implementation address.
      * @param collectNFTImpl The collect NFT implementation address.
      */
-    constructor(address followNFTImpl, address collectNFTImpl) {
+    constructor(
+        address followNFTImpl,
+        address collectNFTImpl,
+        address lensHubDelegation
+    ) {
         if (followNFTImpl == address(0)) revert Errors.InitParamsInvalid();
         if (collectNFTImpl == address(0)) revert Errors.InitParamsInvalid();
+        if (lensHubDelegation == address(0)) revert Errors.InitParamsInvalid();
         FOLLOW_NFT_IMPL = followNFTImpl;
         COLLECT_NFT_IMPL = collectNFTImpl;
+        LENS_HUB_DELEGATION = lensHubDelegation;
     }
 
     /// @inheritdoc ILensHub
@@ -71,7 +81,10 @@ contract LensHub is
         address newGovernance
     ) external override initializer {
         super._initialize(name, symbol);
-        GeneralLib.setStateSimple(DataTypes.ProtocolState.Paused);
+        // GeneralLib.setStateSimple(DataTypes.ProtocolState.Paused);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setStateSimple, (DataTypes.ProtocolState.Paused))
+        );
         _setGovernance(newGovernance);
     }
 
@@ -86,12 +99,16 @@ contract LensHub is
 
     /// @inheritdoc ILensHub
     function setEmergencyAdmin(address newEmergencyAdmin) external override onlyGov {
-        GeneralLib.setEmergencyAdmin(newEmergencyAdmin);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setEmergencyAdmin, (newEmergencyAdmin))
+        );
     }
 
     /// @inheritdoc ILensHub
     function setState(DataTypes.ProtocolState newState) external override {
-        GeneralLib.setStateFull(newState);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setStateFull, (newState))
+        );
     }
 
     ///@inheritdoc ILensHub
@@ -140,7 +157,9 @@ contract LensHub is
         uint256 tokenId,
         DataTypes.EIP712Signature calldata sig
     ) external override {
-        GeneralLib.permit(spender, tokenId, sig);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.permit, (spender, tokenId, sig))
+        );
     }
 
     /// @inheritdoc ILensNFTBase
@@ -150,7 +169,9 @@ contract LensHub is
         bool approved,
         DataTypes.EIP712Signature calldata sig
     ) external override {
-        GeneralLib.permitForAll(owner, operator, approved, sig);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.permitForAll, (owner, operator, approved, sig))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -163,14 +184,18 @@ contract LensHub is
         unchecked {
             uint256 profileId = ++_profileCounter;
             _mint(vars.to, profileId);
-            GeneralLib.createProfile(vars, profileId);
+            LENS_HUB_DELEGATION.functionDelegateCall(
+                abi.encodeCall(LensHubDelegation.createProfile, (vars, profileId))
+            );
             return profileId;
         }
     }
 
     /// @inheritdoc ILensHub
     function setDefaultProfile(uint256 profileId) external override whenNotPaused {
-        GeneralLib.setDefaultProfile(msg.sender, profileId);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setDefaultProfile, (msg.sender, profileId))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -179,7 +204,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setDefaultProfileWithSig(vars);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setDefaultProfileWithSig, (vars))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -188,8 +215,12 @@ contract LensHub is
         address followModule,
         bytes calldata followModuleInitData
     ) external override whenNotPaused {
-        _validateCallerIsProfileOwner(profileId);
-        GeneralLib.setFollowModule(profileId, followModule, followModuleInitData);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(
+                LensHubDelegation.setFollowModule,
+                (profileId, followModule, followModuleInitData)
+            )
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -198,13 +229,16 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setFollowModuleWithSig(vars);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setFollowModuleWithSig, (vars))
+        );
     }
 
     /// @inheritdoc ILensHub
     function setDispatcher(uint256 profileId, address dispatcher) external override whenNotPaused {
-        _validateCallerIsProfileOwner(profileId);
-        _setDispatcher(profileId, dispatcher);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setDispatcher, (profileId, dispatcher))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -213,7 +247,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setDispatcherWithSig(vars);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setDispatcherWithSig, (vars))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -222,7 +258,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setProfileImageURI(profileId, imageURI);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setProfileImageURI, (profileId, imageURI))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -231,7 +269,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setProfileImageURIWithSig(vars);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setProfileImageURIWithSig, (vars))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -240,7 +280,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setFollowNFTURI(profileId, followNFTURI);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setFollowNFTURI, (profileId, followNFTURI))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -249,7 +291,9 @@ contract LensHub is
         override
         whenNotPaused
     {
-        GeneralLib.setFollowNFTURIWithSig(vars);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setFollowNFTURIWithSig, (vars))
+        );
     }
 
     /// @inheritdoc ILensHub
@@ -259,7 +303,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.post(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.post, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -269,7 +319,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.postWithSig(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.postWithSig, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -279,7 +335,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.comment(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.comment, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -289,7 +351,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.commentWithSig(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.commentWithSig, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -299,7 +367,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.mirror(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.mirror, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -309,7 +383,13 @@ contract LensHub is
         whenPublishingEnabled
         returns (uint256)
     {
-        return GeneralLib.mirrorWithSig(vars);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.mirrorWithSig, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /**
@@ -330,7 +410,9 @@ contract LensHub is
         external
         whenNotPaused
     {
-        GeneralLib.burnWithSig(tokenId, sig);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.preProcessBurnWithSig, (tokenId, sig))
+        );
         _burn(tokenId);
         _clearHandleHash(tokenId);
     }
@@ -347,7 +429,12 @@ contract LensHub is
         returns (uint256[] memory)
     {
         return
-            GeneralLib.follow(msg.sender, profileIds, datas, _profileById, _profileIdByHandleHash);
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.follow, (profileIds, datas))
+                ),
+                (uint256[])
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -357,7 +444,13 @@ contract LensHub is
         whenNotPaused
         returns (uint256[] memory)
     {
-        return GeneralLib.followWithSig(vars, _profileById, _profileIdByHandleHash);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.followWithSig, (vars))
+                ),
+                (uint256[])
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -367,14 +460,11 @@ contract LensHub is
         bytes calldata data
     ) external override whenNotPaused returns (uint256) {
         return
-            GeneralLib.collect(
-                msg.sender,
-                profileId,
-                pubId,
-                data,
-                COLLECT_NFT_IMPL,
-                _pubByIdByProfile,
-                _profileById
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.collect, (profileId, pubId, data))
+                ),
+                (uint256)
             );
     }
 
@@ -385,7 +475,13 @@ contract LensHub is
         whenNotPaused
         returns (uint256)
     {
-        return GeneralLib.collectWithSig(vars, COLLECT_NFT_IMPL, _pubByIdByProfile, _profileById);
+        return
+            abi.decode(
+                LENS_HUB_DELEGATION.functionDelegateCall(
+                    abi.encodeCall(LensHubDelegation.collectWithSig, (vars))
+                ),
+                (uint256)
+            );
     }
 
     /// @inheritdoc ILensHub
@@ -548,7 +644,11 @@ contract LensHub is
         override
         returns (string memory)
     {
-        (uint256 rootProfileId, uint256 rootPubId) = Helpers.getPointedIfMirror(profileId, pubId);
+        (uint256 rootProfileId, uint256 rootPubId) = Helpers.getPointedIfMirror(
+            profileId,
+            pubId,
+            _pubByIdByProfile
+        );
         return _pubByIdByProfile[rootProfileId][rootPubId].contentURI;
     }
 
@@ -606,8 +706,15 @@ contract LensHub is
         return COLLECT_NFT_IMPL;
     }
 
+    // TODO: Fix by implementing natively
     function getDomainSeparator() external view returns (bytes32) {
-        return GeneralLib.getDomainSeparator();
+        return bytes32(0);
+            // abi.decode(
+                // LENS_HUB_DELEGATION.functionDelegateCall(
+                    // abi.encodeCall(LensHubDelegation.getDomainSeparator, ())
+                // ),
+                // (bytes32)
+            // );
     }
 
     /**
@@ -630,7 +737,9 @@ contract LensHub is
     /// ****************************
 
     function _setGovernance(address newGovernance) internal {
-        GeneralLib.setGovernance(newGovernance);
+        LENS_HUB_DELEGATION.functionDelegateCall(
+            abi.encodeCall(LensHubDelegation.setGovernance, (newGovernance))
+        );
     }
 
     function _setDispatcher(uint256 profileId, address dispatcher) internal {
@@ -657,13 +766,6 @@ contract LensHub is
         }
 
         super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function _validateCallerIsProfileOwnerOrDispatcher(uint256 profileId) internal view {
-        if (msg.sender == ownerOf(profileId) || msg.sender == _dispatcherByProfile[profileId]) {
-            return;
-        }
-        revert Errors.NotProfileOwnerOrDispatcher();
     }
 
     function _validateCallerIsProfileOwner(uint256 profileId) internal view {

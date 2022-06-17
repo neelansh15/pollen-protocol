@@ -78,8 +78,8 @@ library InteractionHelpers {
         mapping(uint256 => DataTypes.ProfileStruct) storage _profileById
     ) internal returns (uint256) {
         (uint256 rootProfileId, uint256 rootPubId, address rootCollectModule) = Helpers
-            .getPointedIfMirrorWithCollectModule(profileId, pubId);
-            
+            .getPointedIfMirrorWithCollectModule(profileId, pubId, _pubByIdByProfile);
+
         uint256 tokenId;
         // Avoids stack too deep
         {

@@ -15,7 +15,7 @@ import {Errors} from '../../libraries/Errors.sol';
  * whenPublishingEnabled: When Unpaused only.
  */
 abstract contract LensMultiState {
-    DataTypes.ProtocolState private _state; // slot 14
+    DataTypes.ProtocolState private _state; // slot 12
 
     modifier whenNotPaused() {
         _validateNotPaused();

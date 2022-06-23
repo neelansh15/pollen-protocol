@@ -10,6 +10,7 @@ import {Events} from './Events.sol';
 import {Constants} from './Constants.sol';
 import {IFollowNFT} from '../interfaces/IFollowNFT.sol';
 import {ICollectNFT} from '../interfaces/ICollectNFT.sol';
+import {IDynamicCollectionNFT} from '../interfaces/IDynamicCollectionNFT.sol';
 import {IFollowModule} from '../interfaces/IFollowModule.sol';
 import {ICollectModule} from '../interfaces/ICollectModule.sol';
 import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
@@ -115,9 +116,62 @@ library InteractionLogic {
                     _profileById[rootProfileId].handle,
                     collectNFTImpl
                 );
+                tokenId = ICollectNFT(collectNFT).mint(collector);
                 _pubByIdByProfile[rootProfileId][rootPubId].collectNFT = collectNFT;
             }
-            tokenId = ICollectNFT(collectNFT).mint(collector);
+        }
+
+        ICollectModule(rootCollectModule).processCollect(
+            profileId,
+            collector,
+            rootProfileId,
+            rootPubId,
+            collectModuleData
+        );
+        _emitCollectedEvent(
+            collector,
+            profileId,
+            pubId,
+            rootProfileId,
+            rootPubId,
+            collectModuleData
+        );
+
+        return tokenId;
+    }
+
+    // new method for stack too deep this is a POC anyway!
+    function collectDynamicCollection(
+        address collector,
+        uint256 profileId,
+        uint256 pubId,
+        bytes calldata collectModuleData,
+        address collectNFTImpl,
+        mapping(uint256 => mapping(uint256 => DataTypes.PublicationStruct))
+            storage _pubByIdByProfile,
+        mapping(uint256 => DataTypes.ProfileStruct) storage _profileById
+    ) external returns (uint256) {
+        (uint256 rootProfileId, uint256 rootPubId, address rootCollectModule) = Helpers
+            .getPointedIfMirror(profileId, pubId, _pubByIdByProfile);
+
+        uint256 tokenId;
+        // Avoids stack too deep
+        {
+            address collectNFT = _pubByIdByProfile[rootProfileId][rootPubId].collectNFT;
+            if (collectNFT == address(0)) {
+                collectNFT = _deployDyanmicCollectionNFT(
+                    rootProfileId,
+                    rootPubId,
+                    _pubByIdByProfile[rootProfileId][rootPubId].baseURI,
+                    _pubByIdByProfile[rootProfileId][rootPubId].maxSupply,
+                    _pubByIdByProfile[rootProfileId][rootPubId].collectionName,
+                    _pubByIdByProfile[rootProfileId][rootPubId].collectionSymbol,
+                    collectNFTImpl
+                );
+                tokenId = IDynamicCollectionNFT(collectNFT).mint(collector);
+
+                _pubByIdByProfile[rootProfileId][rootPubId].collectNFT = collectNFT;
+            }
         }
 
         ICollectModule(rootCollectModule).processCollect(
@@ -188,6 +242,31 @@ library InteractionLogic {
         emit Events.CollectNFTDeployed(profileId, pubId, collectNFT, block.timestamp);
 
         return collectNFT;
+    }
+
+    function _deployDyanmicCollectionNFT(
+        uint256 profileId,
+        uint256 pubId,
+        string memory baseURI,
+        uint256 maxSupply,
+        string memory name,
+        string memory symbol,
+        address dynamicCollectionNFTImpl
+    ) private returns (address) {
+        address dynamicCollectionNFT = Clones.clone(dynamicCollectionNFTImpl);
+
+        IDynamicCollectionNFT(dynamicCollectionNFT).initialize(
+            profileId,
+            pubId,
+            baseURI,
+            maxSupply,
+            name,
+            symbol
+        );
+        // new event needed
+        emit Events.CollectNFTDeployed(profileId, pubId, dynamicCollectionNFTImpl, block.timestamp);
+
+        return dynamicCollectionNFTImpl;
     }
 
     /**

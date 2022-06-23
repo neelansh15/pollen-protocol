@@ -85,6 +85,14 @@ library DataTypes {
         uint256 profileIdPointed;
         uint256 pubIdPointed;
         string contentURI;
+        // will be empty if not a collection
+        string baseURI;
+        // will be empty if not a collection
+        uint256 maxSupply;
+        // will be empty if not a collection
+        string collectionName;
+        // will be empty if not a collection
+        string collectionSymbol;
         address referenceModule;
         address collectModule;
         address collectNFT;
@@ -193,6 +201,19 @@ library DataTypes {
      */
     struct PostData {
         uint256 profileId;
+        string contentURI;
+        address collectModule;
+        bytes collectModuleInitData;
+        address referenceModule;
+        bytes referenceModuleInitData;
+    }
+
+    struct PostCollectionData {
+        uint256 profileId;
+        uint256 maxSupply;
+        string baseURI;
+        string collectionName;
+        string collectionSymbol;
         string contentURI;
         address collectModule;
         bytes collectModuleInitData;

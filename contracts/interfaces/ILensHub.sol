@@ -184,6 +184,8 @@ interface ILensHub {
      */
     function setFollowNFTURIWithSig(DataTypes.SetFollowNFTURIWithSigData calldata vars) external;
 
+    function postCollection(DataTypes.PostCollectionData calldata vars) external returns (uint256);
+
     /**
      * @notice Publishes a post to a given profile, must be called by the profile owner.
      *

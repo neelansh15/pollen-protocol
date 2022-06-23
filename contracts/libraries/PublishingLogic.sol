@@ -107,6 +107,62 @@ library PublishingLogic {
         );
     }
 
+    function createPostCollection(
+        uint256 profileId,
+        uint256 maxSupply,
+        // string memory baseURI,
+        // string memory name,
+        // string memory symbol,
+        string memory contentURI,
+        address collectModule,
+        bytes memory collectModuleInitData,
+        address referenceModule,
+        bytes memory referenceModuleInitData,
+        uint256 pubId,
+        mapping(uint256 => mapping(uint256 => DataTypes.PublicationStruct))
+            storage _pubByIdByProfile,
+        mapping(address => bool) storage _collectModuleWhitelisted,
+        mapping(address => bool) storage _referenceModuleWhitelisted
+    ) external {
+        // collections posts still have a post linked to the collection drop!
+        _pubByIdByProfile[profileId][pubId].contentURI = contentURI;
+        _pubByIdByProfile[profileId][pubId].baseURI = baseURI;
+        _pubByIdByProfile[profileId][pubId].maxSupply = maxSupply;
+        _pubByIdByProfile[profileId][pubId].collectionName = name;
+        _pubByIdByProfile[profileId][pubId].collectionSymbol = symbol;
+
+        // Collect module initialization
+        bytes memory collectModuleReturnData = _initPubCollectModule(
+            profileId,
+            pubId,
+            collectModule,
+            collectModuleInitData,
+            _pubByIdByProfile,
+            _collectModuleWhitelisted
+        );
+
+        // Reference module initialization
+        bytes memory referenceModuleReturnData = _initPubReferenceModule(
+            profileId,
+            pubId,
+            referenceModule,
+            referenceModuleInitData,
+            _pubByIdByProfile,
+            _referenceModuleWhitelisted
+        );
+
+        emit Events.PostCreated(
+            profileId,
+            pubId,
+            contentURI,
+            collectModule,
+            collectModuleReturnData,
+            referenceModule,
+            referenceModuleReturnData,
+            block.timestamp
+        );
+    }
+
     /**
      * @notice Creates a post publication mapped to the given profile.
      *

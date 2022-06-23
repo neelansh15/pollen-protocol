@@ -34,6 +34,7 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
 
     address internal immutable FOLLOW_NFT_IMPL;
     address internal immutable COLLECT_NFT_IMPL;
+    address internal immutable DYNAMIC_COLLECTION_NFT_IMPL;
 
     /**
      * @dev This modifier reverts if the caller is not the configured governance address.
@@ -49,11 +50,16 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
      * @param followNFTImpl The follow NFT implementation address.
      * @param collectNFTImpl The collect NFT implementation address.
      */
-    constructor(address followNFTImpl, address collectNFTImpl) {
+    constructor(
+        address followNFTImpl,
+        address collectNFTImpl,
+        address dynamicCollectionNftImpl
+    ) {
         if (followNFTImpl == address(0)) revert Errors.InitParamsInvalid();
         if (collectNFTImpl == address(0)) revert Errors.InitParamsInvalid();
         FOLLOW_NFT_IMPL = followNFTImpl;
         COLLECT_NFT_IMPL = collectNFTImpl;
+        DYNAMIC_COLLECTION_NFT_IMPL = dynamicCollectionNftImpl;
     }
 
     /// @inheritdoc ILensHub
@@ -350,6 +356,31 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
         _setFollowNFTURI(vars.profileId, vars.followNFTURI);
     }
 
+    // of course we need a with sig method but this is purely showing proof of concept
+    /// @inheritdoc ILensHub
+    function postCollection(DataTypes.PostCollectionData calldata vars)
+        external
+        override
+        whenPublishingEnabled
+        returns (uint256)
+    {
+        _validateCallerIsProfileOwnerOrDispatcher(vars.profileId);
+
+        return
+            _createPostCollection(
+                vars.profileId,
+                vars.maxSupply,
+                vars.baseURI,
+                vars.collectionName,
+                vars.collectionSymbol,
+                vars.contentURI,
+                vars.collectModule,
+                vars.collectModuleInitData,
+                vars.referenceModule,
+                vars.referenceModuleInitData
+            );
+    }
+
     /// @inheritdoc ILensHub
     function post(DataTypes.PostData calldata vars)
         external
@@ -618,6 +649,21 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
         uint256 pubId,
         bytes calldata data
     ) external override whenNotPaused returns (uint256) {
+        bool isDynamicCollection = bytes(_pubByIdByProfile[profileId][pubId].baseURI).length > 0;
+
+        if (isDynamicCollection) {
+            return
+                InteractionLogic.collectDynamicCollection(
+                    msg.sender,
+                    profileId,
+                    pubId,
+                    data,
+                    DYNAMIC_COLLECTION_NFT_IMPL,
+                    _pubByIdByProfile,
+                    _profileById
+                );
+        }
+
         return
             InteractionLogic.collect(
                 msg.sender,
@@ -654,6 +700,22 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 vars.collector,
                 vars.sig
             );
+        }
+
+        bool isDynamicCollection = bytes(_pubByIdByProfile[vars.profileId][vars.pubId].baseURI)
+            .length > 0;
+
+        if (isDynamicCollection) {
+            return
+                InteractionLogic.collectDynamicCollection(
+                    vars.collector,
+                    vars.profileId,
+                    vars.pubId,
+                    vars.data,
+                    DYNAMIC_COLLECTION_NFT_IMPL,
+                    _pubByIdByProfile,
+                    _profileById
+                );
         }
         return
             InteractionLogic.collect(
@@ -912,6 +974,40 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
         address prevGovernance = _governance;
         _governance = newGovernance;
         emit Events.GovernanceSet(msg.sender, prevGovernance, newGovernance, block.timestamp);
+    }
+
+    function _createPostCollection(
+        uint256 profileId,
+        uint256 maxSupply,
+        string memory baseURI,
+        string memory name,
+        string memory symbol,
+        string memory contentURI,
+        address collectModule,
+        bytes memory collectModuleData,
+        address referenceModule,
+        bytes memory referenceModuleData
+    ) internal returns (uint256) {
+        unchecked {
+            uint256 pubId = ++_profileById[profileId].pubCount;
+            PublishingLogic.createPostCollection(
+                profileId,
+                maxSupply,
+                baseURI,
+                name,
+                symbol,
+                contentURI,
+                collectModule,
+                collectModuleData,
+                referenceModule,
+                referenceModuleData,
+                pubId,
+                _pubByIdByProfile,
+                _collectModuleWhitelisted,
+                _referenceModuleWhitelisted
+            );
+            return pubId;
+        }
     }
 
     function _createPost(

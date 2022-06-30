@@ -33,8 +33,11 @@ library InteractionLogic {
      * @param follower The address executing the follow.
      * @param profileIds The array of profile token IDs to follow.
      * @param followModuleDatas The array of follow module data parameters to pass to each profile's follow module.
+     * @param isDispatcherCall TODO
+     * @param addressDispatcher TODO
      * @param _profileById A pointer to the storage mapping of profile structs by profile ID.
      * @param _profileIdByHandleHash A pointer to the storage mapping of profile IDs by handle hash.
+     * @param _isDispatcherSafeModule  TODO
      *
      * @return uint256[] An array of integers representing the minted follow NFTs token IDs.
      */
@@ -42,8 +45,11 @@ library InteractionLogic {
         address follower,
         uint256[] calldata profileIds,
         bytes[] calldata followModuleDatas,
+        bool isDispatcherCall,
+        DataTypes.AddressDispatcher memory addressDispatcher,
         mapping(uint256 => DataTypes.ProfileStruct) storage _profileById,
-        mapping(bytes32 => uint256) storage _profileIdByHandleHash
+        mapping(bytes32 => uint256) storage _profileIdByHandleHash,
+        mapping(address => bool) storage _isDispatcherSafeModule
     ) external returns (uint256[] memory) {
         if (profileIds.length != followModuleDatas.length) revert Errors.ArrayMismatch();
         uint256[] memory tokenIds = new uint256[](profileIds.length);
@@ -63,6 +69,14 @@ library InteractionLogic {
             tokenIds[i] = IFollowNFT(followNFT).mint(follower);
 
             if (followModule != address(0)) {
+                if (
+                    isDispatcherCall &&
+                    !addressDispatcher.unsafeOperationsAllowed &&
+                    !_isDispatcherSafeModule[followModule]
+                ) {
+                    // TODO: Revert with `UnsafeDispatcherOperation` or something similar.
+                }
+
                 IFollowModule(followModule).processFollow(
                     follower,
                     profileIds[i],
@@ -86,8 +100,11 @@ library InteractionLogic {
      * @param pubId The publication ID of the publication being collected.
      * @param collectModuleData The data to pass to the publication's collect module.
      * @param collectNFTImpl The address of the collect NFT implementation, which has to be passed because it's an immutable in the hub.
+     * @param isDispatcherCall TODO
+     * @param addressDispatcher TODO
      * @param _pubByIdByProfile A pointer to the storage mapping of publications by pubId by profile ID.
      * @param _profileById A pointer to the storage mapping of profile structs by profile ID.
+     * @param _isDispatcherSafeModule TODO
      *
      * @return uint256 An integer representing the minted token ID.
      */
@@ -97,12 +114,23 @@ library InteractionLogic {
         uint256 pubId,
         bytes calldata collectModuleData,
         address collectNFTImpl,
+        bool isDispatcherCall,
+        DataTypes.AddressDispatcher memory addressDispatcher,
         mapping(uint256 => mapping(uint256 => DataTypes.PublicationStruct))
             storage _pubByIdByProfile,
-        mapping(uint256 => DataTypes.ProfileStruct) storage _profileById
+        mapping(uint256 => DataTypes.ProfileStruct) storage _profileById,
+        mapping(address => bool) storage _isDispatcherSafeModule
     ) external returns (uint256) {
         (uint256 rootProfileId, uint256 rootPubId, address rootCollectModule) = Helpers
             .getPointedIfMirror(profileId, pubId, _pubByIdByProfile);
+
+        if (
+            isDispatcherCall &&
+            !addressDispatcher.unsafeOperationsAllowed &&
+            !_isDispatcherSafeModule[rootCollectModule]
+        ) {
+            // TODO: Revert with `UnsafeDispatcherOperation` or something similar.
+        }
 
         uint256 tokenId;
         // Avoids stack too deep

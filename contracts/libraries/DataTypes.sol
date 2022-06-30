@@ -377,4 +377,13 @@ library DataTypes {
         bool[] enables;
         EIP712Signature sig;
     }
+
+    // Imagine in the UI you enable the dispatcher and you have a check for "Enable unsafe operations too",
+    // which basically explains you the risks of the dispatcher being compromised.
+    // Then for enabling it maybe you should type "I want to enable unsafe operations" so people can not skip easily.
+    // Also, dispatcher == address(0) means no dispatcher.
+    struct AddressDispatcher {
+        address dispatcher;
+        bool unsafeOperationsAllowed;
+    }
 }

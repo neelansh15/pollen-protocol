@@ -35,6 +35,9 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
     address internal immutable FOLLOW_NFT_IMPL;
     address internal immutable COLLECT_NFT_IMPL;
 
+    mapping(address => bool) internal _isDispatcherSafeModule;
+    mapping(address => DataTypes.AddressDispatcher) internal _dispatcherOf;
+
     /**
      * @dev This modifier reverts if the caller is not the configured governance address.
      */
@@ -134,6 +137,12 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
     {
         _collectModuleWhitelisted[collectModule] = whitelist;
         emit Events.CollectModuleWhitelisted(collectModule, whitelist, block.timestamp);
+    }
+
+    // TODO: Add to ILensHub with proper natspec documentation.
+    function whitelistModuleAsDispatcherSafe(address module, bool isSafe) external onlyGov {
+        _isDispatcherSafeModule[module] = isSafe;
+        // TODO: Emit some event.
     }
 
     /// *********************************
@@ -241,6 +250,19 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
             _profileById[vars.profileId],
             _followModuleWhitelisted
         );
+    }
+
+    // TODO: Add to ILensHub with proper natspec documentation.
+    // TODO: Add setAddressDispatcherWithSig method.
+    function setAddressDispatcher(address dispatcher, bool unsafeOperationsAllowed)
+        external
+        whenNotPaused
+    {
+        _dispatcherOf[msg.sender] = DataTypes.AddressDispatcher(
+            dispatcher,
+            unsafeOperationsAllowed
+        );
+        // TODO: Emit `AddressDispatcherSet` or similar event.
     }
 
     /// @inheritdoc ILensHub
@@ -565,8 +587,11 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 msg.sender,
                 profileIds,
                 datas,
+                false,
+                DataTypes.AddressDispatcher(address(0), false),
                 _profileById,
-                _profileIdByHandleHash
+                _profileIdByHandleHash,
+                _isDispatcherSafeModule
             );
     }
 
@@ -585,8 +610,10 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 ++i;
             }
         }
+        DataTypes.AddressDispatcher memory addressDispatcher = _dispatcherOf[vars.follower];
+        bool isDispatcherCall;
         unchecked {
-            _validateRecoveredAddress(
+            isDispatcherCall = _validateRecoveredAddressConsideringDispatcher(
                 _calculateDigest(
                     keccak256(
                         abi.encode(
@@ -599,6 +626,7 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                     )
                 ),
                 vars.follower,
+                addressDispatcher.dispatcher,
                 vars.sig
             );
         }
@@ -607,8 +635,11 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 vars.follower,
                 vars.profileIds,
                 vars.datas,
+                isDispatcherCall,
+                addressDispatcher,
                 _profileById,
-                _profileIdByHandleHash
+                _profileIdByHandleHash,
+                _isDispatcherSafeModule
             );
     }
 
@@ -625,8 +656,11 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 pubId,
                 data,
                 COLLECT_NFT_IMPL,
+                false,
+                DataTypes.AddressDispatcher(address(0), false),
                 _pubByIdByProfile,
-                _profileById
+                _profileById,
+                _isDispatcherSafeModule
             );
     }
 
@@ -637,8 +671,10 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
         whenNotPaused
         returns (uint256)
     {
+        DataTypes.AddressDispatcher memory addressDispatcher = _dispatcherOf[vars.collector];
+        bool isDispatcherCall;
         unchecked {
-            _validateRecoveredAddress(
+            isDispatcherCall = _validateRecoveredAddressConsideringDispatcher(
                 _calculateDigest(
                     keccak256(
                         abi.encode(
@@ -652,6 +688,7 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                     )
                 ),
                 vars.collector,
+                addressDispatcher.dispatcher,
                 vars.sig
             );
         }
@@ -662,8 +699,11 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
                 vars.pubId,
                 vars.data,
                 COLLECT_NFT_IMPL,
+                isDispatcherCall,
+                addressDispatcher,
                 _pubByIdByProfile,
-                _profileById
+                _profileById,
+                _isDispatcherSafeModule
             );
     }
 
@@ -1032,6 +1072,38 @@ contract LensHub is LensNFTBase, VersionedInitializable, LensMultiState, LensHub
 
     function _validateCallerIsGovernance() internal view {
         if (msg.sender != _governance) revert Errors.NotGovernance();
+    }
+
+    /**
+     * TODO: Would be interesting to add EIP-1271 support so a dispatcher can be a contract with extra logic.
+     *
+     * @notice Validate the recovered address but allowing it to also be the operator's address-dispatcher.
+     *
+     * @param digest The signature diggest.
+     * @param operator The address whose operation is being executed on behalf of. Recovered address should be either
+     * the operator or its dispatcher.
+     * @param dispatcher The address dispatcher for the operator, address(0) if does not have one.
+     * @param sig The signature struct.
+     *
+     * @return A boolean indicating if the recovered address is from the dispatcher or not.
+     */
+    function _validateRecoveredAddressConsideringDispatcher(
+        bytes32 digest,
+        address operator,
+        address dispatcher,
+        DataTypes.EIP712Signature calldata sig
+    ) internal view returns (bool) {
+        if (sig.deadline < block.timestamp) {
+            revert Errors.SignatureExpired();
+        }
+        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        if (
+            recoveredAddress == address(0) ||
+            (recoveredAddress != operator && recoveredAddress != dispatcher)
+        ) {
+            revert Errors.SignatureInvalid();
+        }
+        return recoveredAddress == dispatcher;
     }
 
     function getRevision() internal pure virtual override returns (uint256) {

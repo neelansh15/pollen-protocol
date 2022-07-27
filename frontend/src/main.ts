@@ -26,6 +26,9 @@ import './theme/variables.css';
 /* Custom CSS */
 import './theme/main.css';
 
+/* Library CSS */
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
 const app = createApp(App).use(IonicVue).use(router);
 
 router.isReady().then(() => {

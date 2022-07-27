@@ -31,7 +31,7 @@
                 class="ion-margin-start ion-align-items-center"
                 :style="isAndroid && 'margin-top: 12px; margin-left: 24px'"
               >
-                <ion-card-title :style="isAndroid && 'font-weight: 900'"
+                <ion-card-title :style="isAndroid && 'font-weight: 900; font-size: 1.4rem'"
                   >Vitalik Buterin</ion-card-title
                 >
                 <ion-card-subtitle>0xf475D9...78F697bc</ion-card-subtitle>

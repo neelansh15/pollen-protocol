@@ -2,28 +2,65 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Tab 1</ion-title>
+        <ion-title>Pollen</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Tab 1</ion-title>
+          <ion-title size="large">Pollen</ion-title>
         </ion-toolbar>
       </ion-header>
-    
-      <ExploreContainer name="Tab 1 page" />
+      <DynamicScroller class="scroller" :items="posts" :minItemSize="360" keyField="title">
+        <template #default="{ item }">
+          <PostCard :item="item" />
+        </template>
+      </DynamicScroller>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
-import ExploreContainer from '@/components/ExploreContainer.vue';
 
-export default  defineComponent({
+import { DynamicScroller } from 'vue-virtual-scroller';
+
+import PostCard from '@/components/PostCard.vue';
+
+export default defineComponent({
   name: 'Tab1Page',
-  components: { ExploreContainer, IonHeader, IonToolbar, IonTitle, IonContent, IonPage }
+  components: {
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonPage,
+    DynamicScroller,
+    PostCard,
+  },
+  setup() {
+    const posts = ref([] as any[]);
+
+    posts.value = [
+      {
+        title: 'Waves in the Winter 1',
+        subtitle: 'Alex Romanoff',
+        image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
+      },
+      {
+        title: 'Waves in the Winter 2',
+        subtitle: 'Alex Romanoff',
+        image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
+      },
+      {
+        title: 'Waves in the Winter 3',
+        subtitle: 'Alex Romanoff',
+        image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
+      },
+    ];
+
+    return { posts };
+  },
 });
 </script>

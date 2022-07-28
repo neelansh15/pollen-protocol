@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { defineProps, reactive } from 'vue';
 import {
   IonCard,
   IonCardHeader,
@@ -7,10 +7,27 @@ import {
   IonCardSubtitle,
   IonImg,
   IonCardContent,
+  IonChip,
+  IonIcon,
+  IonLabel,
 } from '@ionic/vue';
+import { heartCircleSharp, syncCircleSharp } from 'ionicons/icons';
 const props = defineProps({
   item: Object,
 });
+
+const userInfo = reactive({
+  liked: true,
+  reposted: false,
+});
+
+const likePost = async () => {
+  userInfo.liked = !userInfo.liked;
+};
+
+const repost = async () => {
+  userInfo.reposted = !userInfo.reposted;
+};
 </script>
 
 <template>
@@ -21,6 +38,17 @@ const props = defineProps({
     </ion-card-header>
     <ion-card-content>
       {{ props.item.description }}
+
+      <hr />
+      <ion-chip color="danger" :outline="!userInfo.liked" @click="likePost">
+        <ion-icon :icon="heartCircleSharp"></ion-icon>
+        <ion-label color="danger">101</ion-label>
+      </ion-chip>
+
+      <ion-chip color="success" :outline="!userInfo.reposted" @click="repost">
+        <ion-icon :icon="syncCircleSharp"></ion-icon>
+        <ion-label color="success">15</ion-label>
+      </ion-chip>
     </ion-card-content>
   </ion-card>
 </template>

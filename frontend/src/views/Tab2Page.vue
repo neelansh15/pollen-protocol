@@ -1,5 +1,14 @@
 <script lang="ts" setup>
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonTextarea,
+  IonLabel,
+  IonItem,
+} from '@ionic/vue';
 </script>
 
 <template>
@@ -15,8 +24,13 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue
           <ion-title size="large">New Post</ion-title>
         </ion-toolbar>
       </ion-header>
-
-      hey
+      
+      <!-- Inputs -->
+      <div class="ion-padding">
+        <ion-item>
+          <ion-textarea placeholder="Content" :rows="10" autofocus></ion-textarea>
+        </ion-item>
+      </div>
     </ion-content>
   </ion-page>
 </template>

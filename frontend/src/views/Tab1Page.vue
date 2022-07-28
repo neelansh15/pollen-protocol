@@ -11,7 +11,7 @@
           <ion-title size="large">Pollen</ion-title>
         </ion-toolbar>
       </ion-header>
-      <DynamicScroller class="scroller" :items="posts" :minItemSize="360" keyField="title">
+      <DynamicScroller class="scroller" :items="posts" :minItemSize="360" keyField="description">
         <template #default="{ item }">
           <PostCard :item="item" />
         </template>
@@ -44,19 +44,19 @@ export default defineComponent({
 
     posts.value = [
       {
-        title: 'Waves in the Winter 1',
-        subtitle: 'Alex Romanoff',
+        description: 'Waves in the Winter 1',
+        author: 'Alex Romanoff',
         image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
       },
       {
-        title: 'Waves in the Winter 2',
-        subtitle: 'Alex Romanoff',
+        description: 'Waves in the Winter 2',
+        author: 'Alex Romanoff',
         image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
       },
       {
-        title: 'Waves in the Winter 3',
-        subtitle: 'Alex Romanoff',
-        image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
+        description: 'Waves in the Winter 3',
+        author: 'Alex Romanoff',
+        // image: 'https://c.wallhere.com/photos/0e/e1/surfing_waves_sea_monochrome-247782.jpg!d',
       },
     ];
 

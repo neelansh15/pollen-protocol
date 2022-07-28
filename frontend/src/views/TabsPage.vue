@@ -9,8 +9,8 @@
         </ion-tab-button>
 
         <ion-tab-button tab="tab2" href="/tabs/tab2">
-          <ion-icon :icon="ellipse" />
-          <ion-label>Tab 2</ion-label>
+          <ion-icon :icon="addCircleSharp" />
+          <ion-label>New</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">
@@ -33,7 +33,7 @@ import {
   IonPage,
   IonRouterOutlet,
 } from '@ionic/vue';
-import { ellipse, triangle, personCircle } from 'ionicons/icons';
+import { addCircleSharp, triangle, personCircle } from 'ionicons/icons';
 
 export default defineComponent({
   name: 'TabsPage',
@@ -48,7 +48,7 @@ export default defineComponent({
   },
   setup() {
     return {
-      ellipse,
+      addCircleSharp,
       personCircle,
       triangle,
     };

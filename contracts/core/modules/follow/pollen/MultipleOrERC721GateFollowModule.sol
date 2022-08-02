@@ -47,14 +47,21 @@ contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollo
         _checkNftOwnership(to, profileId);
     }
 
+    function setNfts(uint256 profileId, address[] calldata profileIds) public {
+        require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
+        nftsByProfile[profileId] = profileIds;
+    }
+
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
-        bool allow = false;
-        for (uint256 i = 1; i <= nftsByProfile[_profileId].length; i++) {
-            if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0) {
-                allow = true;
-                break;
+        if (nftsByProfile[_profileId].length != 0) {
+            bool allow = false;
+            for (uint256 i = 1; i <= nftsByProfile[_profileId].length; i++) {
+                if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0) {
+                    allow = true;
+                    break;
+                }
             }
+            require(allow, 'INSUFFICIENT_NFT_BALANCE');
         }
-        require(allow, 'INSUFFICIENT_NFT_BALANCE');
     }
 }

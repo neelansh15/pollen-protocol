@@ -49,19 +49,19 @@ contract ProfilesGateAndFollowModule is IFollowModule, FollowValidatorFollowModu
         _checkOwnership(to, profileId);
     }
 
-    // TODO: Think about allowing setting
-    // function setRequiredProfiles(uint256 profileId, bytes calldata data) public {
-    //     address followNFT = ILensHub(HUB).getFollowNFT(profileId);
-    //     require(followNFT.ownerOf(profileId) == msg.sender, 'ONLY_OWNER');
-    //     IdsByProfile[profileId] = abi.decode(data, (uint256[]));
-    // }
+    function setProfileIds(uint256 profileId, uint256[] calldata nftAddresses) public {
+        require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
+        IdsByProfile[profileId] = nftAddresses;
+    }
 
     function _checkOwnership(address _user, uint256 _profileId) private view {
-        for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
-            address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
+        if (IdsByProfile[_profileId].length != 0) {
+            for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
+                address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
 
-            require(followNFT != address(0), 'NO_FOLLOW');
-            require(IERC721(followNFT).balanceOf(_user) > 0, 'NO_FOLLOW');
+                require(followNFT != address(0), 'NO_FOLLOW');
+                require(IERC721(followNFT).balanceOf(_user) > 0, 'NO_FOLLOW');
+            }
         }
     }
 }

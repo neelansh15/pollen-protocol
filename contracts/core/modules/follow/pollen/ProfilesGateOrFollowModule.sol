@@ -18,7 +18,8 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 contract ProfilesGateOrFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => uint256[]) public IdsByProfile;
 
-    string public description = 'Follow allowed only if you follow at least one of the set profiles';
+    string public description =
+        'Follow allowed only if you follow at least one of the set profiles';
 
     constructor(address hub) ModuleBase(hub) {}
 
@@ -49,16 +50,23 @@ contract ProfilesGateOrFollowModule is IFollowModule, FollowValidatorFollowModul
         _checkOwnership(to, profileId);
     }
 
-    function _checkOwnership(address _user, uint256 _profileId) private view {
-        bool allow = false;
-        for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
-            address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
+    function setProfileIds(uint256 profileId, uint256[] calldata profileIds) public {
+        require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
+        IdsByProfile[profileId] = profileIds;
+    }
 
-            if(followNFT != address(0) && IERC721(followNFT).balanceOf(_user) > 0) {
-                allow = true;
-                break;
+    function _checkOwnership(address _user, uint256 _profileId) private view {
+        if (IdsByProfile[_profileId].length != 0) {
+            bool allow = false;
+            for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
+                address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
+
+                if (followNFT != address(0) && IERC721(followNFT).balanceOf(_user) > 0) {
+                    allow = true;
+                    break;
+                }
             }
+            require(allow, 'NO_FOLLOW');
         }
-        require(allow, "NO_FOLLOW");
     }
 }

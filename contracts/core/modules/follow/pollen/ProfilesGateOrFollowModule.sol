@@ -58,12 +58,16 @@ contract ProfilesGateOrFollowModule is IFollowModule, FollowValidatorFollowModul
     function _checkOwnership(address _user, uint256 _profileId) private view {
         if (IdsByProfile[_profileId].length != 0) {
             bool allow = false;
-            for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
+            for (uint256 i = 1; i <= IdsByProfile[_profileId].length; ) {
                 address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
 
                 if (followNFT != address(0) && IERC721(followNFT).balanceOf(_user) > 0) {
                     allow = true;
                     break;
+                }
+
+                unchecked {
+                    i++;
                 }
             }
             require(allow, 'NO_FOLLOW');

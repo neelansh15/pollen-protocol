@@ -5,18 +5,20 @@ pragma solidity 0.8.10;
 import {ModuleBase} from '../../ModuleBase.sol';
 import {FollowValidatorFollowModuleBase} from '../FollowValidatorFollowModuleBase.sol';
 
+import {ILensHub} from '../../../../interfaces/ILensHub.sol';
 import {IFollowModule} from '../../../../interfaces/IFollowModule.sol';
+
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
- * @title MultipleOrERC721GateFollowModule
+ * @title ProfilesGateAndFollowModule
  * @author Neelansh Mathur
- * @dev Allows holders to follow if they hold at least one of the set NFTs
+ * @dev Allow follow only if the user is already following certain Lens Profiles
  **/
-contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
-    mapping(uint256 => address[]) public nftsByProfile;
+contract ProfilesGateAndFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
+    mapping(uint256 => uint256[]) public IdsByProfile;
 
-    string public description = 'Follow allowed only if you hold at least one of the required NFTs';
+    string public description = 'Follow allowed only if you follow certain other profiles';
 
     constructor(address hub) ModuleBase(hub) {}
 
@@ -26,7 +28,7 @@ contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollo
         onlyHub
         returns (bytes memory)
     {
-        nftsByProfile[profileId] = abi.decode(data, (address[]));
+        IdsByProfile[profileId] = abi.decode(data, (uint256[]));
         return data;
     }
 
@@ -35,7 +37,7 @@ contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollo
         uint256 profileId,
         bytes calldata // data
     ) external view override {
-        _checkNftOwnership(follower, profileId);
+        _checkOwnership(follower, profileId);
     }
 
     function followModuleTransferHook(
@@ -44,17 +46,15 @@ contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollo
         address to,
         uint256 followNFTTokenId
     ) external view override {
-        _checkNftOwnership(to, profileId);
+        _checkOwnership(to, profileId);
     }
 
-    function _checkNftOwnership(address _user, uint256 _profileId) private view {
-        bool allow = false;
-        for (uint256 i = 1; i <= nftsByProfile[_profileId].length; i++) {
-            if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0) {
-                allow = true;
-                break;
-            }
+    function _checkOwnership(address _user, uint256 _profileId) private view {
+        for (uint256 i = 1; i <= IdsByProfile[_profileId].length; i++) {
+            address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
+
+            require(followNFT != address(0), 'NO_FOLLOW');
+            require(IERC721(followNFT).balanceOf(_user) > 0, "NO_FOLLOW");
         }
-        require(allow, 'INSUFFICIENT_NFT_BALANCE');
     }
 }

@@ -2,9 +2,10 @@
 
 pragma solidity 0.8.10;
 
-import {ModuleBase} from '../ModuleBase.sol';
-import {IFollowModule} from '../../../interfaces/IFollowModule.sol';
-import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
+import {ModuleBase} from '../../ModuleBase.sol';
+import {FollowValidatorFollowModuleBase} from '../FollowValidatorFollowModuleBase.sol';
+
+import {IFollowModule} from '../../../../interfaces/IFollowModule.sol';
 
 /**
  * @title MyFollowModule

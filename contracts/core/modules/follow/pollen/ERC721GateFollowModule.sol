@@ -2,16 +2,16 @@
 
 pragma solidity 0.8.10;
 
-import {ModuleBase} from '../ModuleBase.sol';
-import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
+import {ModuleBase} from '../../ModuleBase.sol';
+import {FollowValidatorFollowModuleBase} from '../FollowValidatorFollowModuleBase.sol';
 
-import {IFollowModule} from '../../../interfaces/IFollowModule.sol';
+import {IFollowModule} from '../../../../interfaces/IFollowModule.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
  * @title ERC721GateFollowModule
  * @author Neelansh Mathur
- *
+ * @dev Allows holders of a certain NFT to follow
  **/
 contract ERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => address) public nftByProfile;
@@ -48,6 +48,6 @@ contract ERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBas
     }
 
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
-        require(IERC721(nftByProfile[_profileId]).balanceOf(_user) > 0, "NO_NFT_BALANCE");
+        require(IERC721(nftByProfile[_profileId]).balanceOf(_user) > 0, "INSUFFICIENT_NFT_BALANCE");
     }
 }

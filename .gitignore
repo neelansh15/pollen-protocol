@@ -26,5 +26,6 @@ coverage.json
 addresses.json
 
 contracts/core/modules/follow/SecretCodeFollowModule.sol
+contracts/core/modules/follow/FollowTemplate.sol
 
 .DS_Store

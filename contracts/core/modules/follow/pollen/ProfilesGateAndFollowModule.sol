@@ -49,7 +49,7 @@ contract ProfilesGateAndFollowModule is IFollowModule, FollowValidatorFollowModu
         _checkOwnership(to, profileId);
     }
 
-    function setProfileIds(uint256 profileId, uint256[] calldata nftAddresses) public {
+    function setProfileIds(uint256 profileId, uint256[] calldata nftAddresses) external {
         require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
         IdsByProfile[profileId] = nftAddresses;
     }

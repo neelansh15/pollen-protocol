@@ -47,7 +47,7 @@ contract MultipleOrERC721GateFollowModule is IFollowModule, FollowValidatorFollo
         _checkNftOwnership(to, profileId);
     }
 
-    function setNfts(uint256 profileId, address[] calldata profileIds) public {
+    function setNfts(uint256 profileId, address[] calldata profileIds) external {
         require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
         nftsByProfile[profileId] = profileIds;
     }

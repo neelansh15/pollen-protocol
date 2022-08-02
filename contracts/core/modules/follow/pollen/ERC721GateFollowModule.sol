@@ -47,7 +47,7 @@ contract ERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBas
         _checkNftOwnership(to, profileId);
     }
 
-    function setNft(uint256 profileId, address nftAddress) public {
+    function setNft(uint256 profileId, address nftAddress) external {
         require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
         nftByProfile[profileId] = nftAddress;
     }

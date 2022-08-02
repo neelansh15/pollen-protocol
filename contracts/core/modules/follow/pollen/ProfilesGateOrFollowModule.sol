@@ -13,7 +13,7 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 /**
  * @title ProfilesGateOrFollowModule
  * @author Neelansh Mathur
- * @dev Allow follow only if the user is already following certain Lens Profiles
+ * @dev Allow follow only if the user is already following at least one of the set Lens Profiles
  **/
 contract ProfilesGateOrFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => uint256[]) public IdsByProfile;

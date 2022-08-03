@@ -59,7 +59,7 @@ contract ProfilesGateAndFollowModule is IFollowModule, FollowValidatorFollowModu
             for (uint256 i = 0; i <= IdsByProfile[_profileId].length; ) {
                 address followNFT = ILensHub(HUB).getFollowNFT(IdsByProfile[_profileId][i]);
 
-                require(followNFT != address(0), 'NO_FOLLOW');
+                require(followNFT != address(0), 'NO_FOLLOW'); // TODO: Allow follow if followNFT address is zero
                 require(IERC721(followNFT).balanceOf(_user) > 0, 'NO_FOLLOW');
 
                 unchecked {

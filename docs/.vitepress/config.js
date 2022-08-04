@@ -1,7 +1,6 @@
 export default {
     title: 'Pollen Protocol',
     description: 'Modules for the Lens Protocol',
-
     themeConfig: {
         editLink: {
             pattern: 'https://github.com/neelansh15/pollen-protocol/edit/main/docs/:path'

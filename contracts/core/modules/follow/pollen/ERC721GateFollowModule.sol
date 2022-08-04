@@ -53,6 +53,11 @@ contract ERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBas
     }
 
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
-        require(IERC721(nftByProfile[_profileId]).balanceOf(_user) > 0, 'INSUFFICIENT_NFT_BALANCE');
+        if (nftByProfile[_profileId] != address(0)) {
+            require(
+                IERC721(nftByProfile[_profileId]).balanceOf(_user) > 0,
+                'INSUFFICIENT_NFT_BALANCE'
+            );
+        }
     }
 }

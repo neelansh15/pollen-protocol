@@ -52,6 +52,10 @@ import {
   CollectNFT,
   RevertFollowModule,
   RevertFollowModule__factory,
+  ERC721GateFollowModule,
+  ERC721GateFollowModule__factory,
+  MyNFT,
+  MyNFT__factory,
 } from '../typechain-types';
 import { LensHubLibraryAddresses } from '../typechain-types/factories/LensHub__factory';
 import { FAKE_PRIVATEKEY, ZERO_ADDRESS } from './helpers/constants';
@@ -107,6 +111,10 @@ export let lensPeriphery: LensPeriphery;
 export let followNFTImpl: FollowNFT;
 export let collectNFTImpl: CollectNFT;
 
+/* Test */
+
+export let genericNFT: MyNFT;
+
 /* Modules */
 
 // Collect
@@ -123,6 +131,8 @@ export let profileFollowModule: ProfileFollowModule;
 export let feeFollowModule: FeeFollowModule;
 export let revertFollowModule: RevertFollowModule;
 export let mockFollowModule: MockFollowModule;
+
+export let erc721FollowModule: ERC721GateFollowModule;
 
 // Reference
 export let followerOnlyReferenceModule: FollowerOnlyReferenceModule;
@@ -212,6 +222,9 @@ before(async function () {
   // Currency
   currency = await new Currency__factory(deployer).deploy();
 
+  // Test
+  genericNFT = await new MyNFT__factory(deployer).deploy();
+
   // Modules
   freeCollectModule = await new FreeCollectModule__factory(deployer).deploy(lensHub.address);
   revertCollectModule = await new RevertCollectModule__factory(deployer).deploy();
@@ -239,6 +252,7 @@ before(async function () {
   profileFollowModule = await new ProfileFollowModule__factory(deployer).deploy(lensHub.address);
   approvalFollowModule = await new ApprovalFollowModule__factory(deployer).deploy(lensHub.address);
   revertFollowModule = await new RevertFollowModule__factory(deployer).deploy(lensHub.address);
+  erc721FollowModule = await new ERC721GateFollowModule__factory(deployer).deploy(lensHub.address);
   followerOnlyReferenceModule = await new FollowerOnlyReferenceModule__factory(deployer).deploy(
     lensHub.address
   );

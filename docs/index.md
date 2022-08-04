@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Pollen
   text: Module Ecosystem for the Lens Protocol
-  tagline: Set of Experimental Modules to use as Standard for the Lens Protocol
+  tagline: Set of Experimental Modules to use as Standard
   actions:
     - theme: brand
       text: Get Started

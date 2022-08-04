@@ -11,7 +11,7 @@ import {
   MOCK_FOLLOW_NFT_URI,
   MOCK_PROFILE_HANDLE,
   MOCK_PROFILE_URI,
-  multipleAndErc721FollowModule,
+  multipleOrErc721FollowModule,
   userAddress,
   userTwo,
   myNFT,
@@ -20,7 +20,7 @@ import {
   myNFT3,
 } from '../../__setup.spec';
 
-makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
+makeSuiteCleanRoom('Multiple OR ERC721 Gated Follow Module', function () {
   beforeEach(async function () {
     await expect(
       lensHub.createProfile({
@@ -33,7 +33,7 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
       })
     ).to.not.be.reverted;
     await expect(
-      lensHub.connect(governance).whitelistFollowModule(multipleAndErc721FollowModule.address, true)
+      lensHub.connect(governance).whitelistFollowModule(multipleOrErc721FollowModule.address, true)
     ).to.not.be.reverted;
   });
 
@@ -41,55 +41,25 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
     context('Initialization', function () {
       it('Initialize call should fail when sender is not the hub', async function () {
         await expect(
-          multipleAndErc721FollowModule.initializeFollowModule(FIRST_PROFILE_ID, [])
+          multipleOrErc721FollowModule.initializeFollowModule(FIRST_PROFILE_ID, [])
         ).to.be.revertedWith(ERRORS.NOT_HUB);
       });
     });
 
     context('Processing follow', function () {
-      it('User should fail to process follow if the user does not own all the NFTs', async function () {
+      it.only('User should fail to process follow if the user does not own any of the NFTs', async function () {
         const data = abiCoder.encode(
           ['address[]'],
           [[myNFT.address, myNFT2.address, myNFT3.address]]
         );
-        await lensHub.setFollowModule(
-          FIRST_PROFILE_ID,
-          multipleAndErc721FollowModule.address,
-          data
-        );
+        await lensHub.setFollowModule(FIRST_PROFILE_ID, multipleOrErc721FollowModule.address, data);
         expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
-          multipleAndErc721FollowModule.address
+          multipleOrErc721FollowModule.address
         );
 
         await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.revertedWith(
           'INSUFFICIENT_NFT_BALANCE'
         );
-      });
-
-      it('User should fail to follow if the user owns some but not all of the NFTs', async function () {
-        const data = abiCoder.encode(
-          ['address[]'],
-          [[myNFT.address, myNFT2.address, myNFT3.address]]
-        );
-        await lensHub.setFollowModule(
-          FIRST_PROFILE_ID,
-          multipleAndErc721FollowModule.address,
-          data
-        );
-        expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
-          multipleAndErc721FollowModule.address
-        );
-
-        expect(await multipleAndErc721FollowModule.getNfts(FIRST_PROFILE_ID)).to.have.members([
-          myNFT.address,
-          myNFT2.address,
-          myNFT3.address,
-        ]);
-
-        await myNFT2.connect(userTwo).mint();
-        await myNFT3.connect(userTwo).mint();
-
-        await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.be.revertedWith("INSUFFICIENT_NFT_BALANCE");
       });
     });
   });
@@ -99,7 +69,7 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
       it('Initialize call should succeed when passing non empty data and return empty bytes', async function () {
         const nonEmptyData = '0x1234';
         expect(
-          await multipleAndErc721FollowModule
+          await multipleOrErc721FollowModule
             .connect(lensHub.address)
             .initializeFollowModule(FIRST_PROFILE_ID, nonEmptyData)
         ).to.be.equals('0x');
@@ -107,21 +77,17 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
     });
 
     context('Processing follow', function () {
-      it('UserTwo should be able to follow if the user owns all the NFTs', async function () {
+      it.only('UserTwo should be able to follow if the user owns all the NFTs', async function () {
         const data = abiCoder.encode(
           ['address[]'],
           [[myNFT.address, myNFT2.address, myNFT3.address]]
         );
-        await lensHub.setFollowModule(
-          FIRST_PROFILE_ID,
-          multipleAndErc721FollowModule.address,
-          data
-        );
+        await lensHub.setFollowModule(FIRST_PROFILE_ID, multipleOrErc721FollowModule.address, data);
         expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
-          multipleAndErc721FollowModule.address
+          multipleOrErc721FollowModule.address
         );
 
-        expect(await multipleAndErc721FollowModule.getNfts(FIRST_PROFILE_ID)).to.have.members([
+        expect(await multipleOrErc721FollowModule.getNfts(FIRST_PROFILE_ID)).to.have.members([
           myNFT.address,
           myNFT2.address,
           myNFT3.address,
@@ -129,6 +95,27 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
 
         await myNFT.connect(userTwo).mint();
         await myNFT2.connect(userTwo).mint();
+        await myNFT3.connect(userTwo).mint();
+
+        await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
+      });
+
+      it.only('User should be able to follow if the user owns some but not all of the NFTs', async function () {
+        const data = abiCoder.encode(
+          ['address[]'],
+          [[myNFT.address, myNFT2.address, myNFT3.address]]
+        );
+        await lensHub.setFollowModule(FIRST_PROFILE_ID, multipleOrErc721FollowModule.address, data);
+        expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
+          multipleOrErc721FollowModule.address
+        );
+
+        expect(await multipleOrErc721FollowModule.getNfts(FIRST_PROFILE_ID)).to.have.members([
+          myNFT.address,
+          myNFT2.address,
+          myNFT3.address,
+        ]);
+
         await myNFT3.connect(userTwo).mint();
 
         await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;

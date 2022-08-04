@@ -50,6 +50,20 @@ contract ProfilesGateOrFollowModule is IFollowModule, FollowValidatorFollowModul
         _checkOwnership(to, profileId);
     }
 
+    function getAll(uint256 _profileId) external view returns (uint256[] memory) {
+        uint256 nftCount = IdsByProfile[_profileId].length;
+        uint256[] memory nfts = new uint256[](nftCount);
+
+        for (uint256 i = 0; i < nftCount; ) {
+            nfts[i] = IdsByProfile[_profileId][i];
+            unchecked {
+                i++;
+            }
+        }
+
+        return nfts;
+    }
+
     function setProfileIds(uint256 profileId, uint256[] calldata profileIds) external {
         require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
         IdsByProfile[profileId] = profileIds;

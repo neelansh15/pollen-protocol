@@ -14,7 +14,7 @@ import {
   erc721FollowModule,
   userAddress,
   userTwo,
-  genericNFT,
+  myNFT,
   abiCoder,
 } from '../../__setup.spec';
 
@@ -45,8 +45,8 @@ makeSuiteCleanRoom('ERC721 Gated Follow Module', function () {
     });
 
     context('Processing follow', function () {
-      it.only('UserTwo should fail to process follow if the user does not own the NFT', async function () {
-        const data = abiCoder.encode(['address'], [genericNFT.address]);
+      it('UserTwo should fail to process follow if the user does not own the NFT', async function () {
+        const data = abiCoder.encode(['address'], [myNFT.address]);
         await lensHub.setFollowModule(FIRST_PROFILE_ID, erc721FollowModule.address, data);
         expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
           erc721FollowModule.address
@@ -70,16 +70,16 @@ makeSuiteCleanRoom('ERC721 Gated Follow Module', function () {
     });
 
     context('Processing follow', function () {
-      it.only('UserTwo should be able to follow if the user owns the NFT', async function () {
-        const data = abiCoder.encode(['address'], [genericNFT.address]);
+      it('UserTwo should be able to follow if the user owns the NFT', async function () {
+        const data = abiCoder.encode(['address'], [myNFT.address]);
         await lensHub.setFollowModule(FIRST_PROFILE_ID, erc721FollowModule.address, data);
         expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
           erc721FollowModule.address
         );
 
-        expect(await erc721FollowModule.nftByProfile(FIRST_PROFILE_ID)).to.equal(genericNFT.address);
+        expect(await erc721FollowModule.nftByProfile(FIRST_PROFILE_ID)).to.equal(myNFT.address);
 
-        await genericNFT.connect(userTwo).mint();
+        await myNFT.connect(userTwo).mint();
 
         await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
       });

@@ -52,10 +52,14 @@ import {
   CollectNFT,
   RevertFollowModule,
   RevertFollowModule__factory,
-  ERC721GateFollowModule,
-  ERC721GateFollowModule__factory,
   MyNFT,
   MyNFT__factory,
+  ERC721GateFollowModule,
+  ERC721GateFollowModule__factory,
+  MultipleAndERC721GateFollowModule,
+  MultipleAndERC721GateFollowModule__factory,
+  MultipleOrERC721GateFollowModule,
+  MultipleOrERC721GateFollowModule__factory,
 } from '../typechain-types';
 import { LensHubLibraryAddresses } from '../typechain-types/factories/LensHub__factory';
 import { FAKE_PRIVATEKEY, ZERO_ADDRESS } from './helpers/constants';
@@ -111,9 +115,11 @@ export let lensPeriphery: LensPeriphery;
 export let followNFTImpl: FollowNFT;
 export let collectNFTImpl: CollectNFT;
 
-/* Test */
+/* Test NFTs */
 
-export let genericNFT: MyNFT;
+export let myNFT: MyNFT;
+export let myNFT2: MyNFT;
+export let myNFT3: MyNFT;
 
 /* Modules */
 
@@ -133,6 +139,8 @@ export let revertFollowModule: RevertFollowModule;
 export let mockFollowModule: MockFollowModule;
 
 export let erc721FollowModule: ERC721GateFollowModule;
+export let multipleAndErc721FollowModule: MultipleAndERC721GateFollowModule;
+export let multipleOrErc721FollowModule: MultipleOrERC721GateFollowModule;
 
 // Reference
 export let followerOnlyReferenceModule: FollowerOnlyReferenceModule;
@@ -222,8 +230,10 @@ before(async function () {
   // Currency
   currency = await new Currency__factory(deployer).deploy();
 
-  // Test
-  genericNFT = await new MyNFT__factory(deployer).deploy();
+  // Test NFTs
+  myNFT = await new MyNFT__factory(deployer).deploy();
+  myNFT2 = await new MyNFT__factory(deployer).deploy();
+  myNFT3 = await new MyNFT__factory(deployer).deploy();
 
   // Modules
   freeCollectModule = await new FreeCollectModule__factory(deployer).deploy(lensHub.address);
@@ -252,10 +262,18 @@ before(async function () {
   profileFollowModule = await new ProfileFollowModule__factory(deployer).deploy(lensHub.address);
   approvalFollowModule = await new ApprovalFollowModule__factory(deployer).deploy(lensHub.address);
   revertFollowModule = await new RevertFollowModule__factory(deployer).deploy(lensHub.address);
-  erc721FollowModule = await new ERC721GateFollowModule__factory(deployer).deploy(lensHub.address);
   followerOnlyReferenceModule = await new FollowerOnlyReferenceModule__factory(deployer).deploy(
     lensHub.address
   );
+
+  // Pollen Follow Modules
+  erc721FollowModule = await new ERC721GateFollowModule__factory(deployer).deploy(lensHub.address);
+  multipleAndErc721FollowModule = await new MultipleAndERC721GateFollowModule__factory(
+    deployer
+  ).deploy(lensHub.address);
+  multipleOrErc721FollowModule = await new MultipleOrERC721GateFollowModule__factory(
+    deployer
+  ).deploy(lensHub.address);
 
   mockFollowModule = await new MockFollowModule__factory(deployer).deploy();
   mockReferenceModule = await new MockReferenceModule__factory(deployer).deploy();

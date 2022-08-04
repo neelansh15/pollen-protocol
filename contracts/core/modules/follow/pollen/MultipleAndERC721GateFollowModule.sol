@@ -47,6 +47,20 @@ contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFoll
         _checkNftOwnership(to, profileId);
     }
 
+    function getNfts(uint256 _profileId) external view returns (address[] memory) {
+        uint256 nftCount = nftsByProfile[_profileId].length;
+        address[] memory nfts = new address[](nftCount);
+
+        for(uint256 i = 0; i < nftCount;){
+            nfts[i] = nftsByProfile[_profileId][i];
+            unchecked {
+                i++;
+            }
+        }
+
+        return nfts;
+    }
+
     function setNfts(uint256 profileId, address[] calldata nftAddresses) external {
         require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
         nftsByProfile[profileId] = nftAddresses;
@@ -54,7 +68,7 @@ contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFoll
 
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
         if (nftsByProfile[_profileId].length != 0) {
-            for (uint256 i = 0; i <= nftsByProfile[_profileId].length; ) {
+            for (uint256 i = 0; i < nftsByProfile[_profileId].length; ) {
                 require(
                     IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0,
                     'INSUFFICIENT_NFT_BALANCE'

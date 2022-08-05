@@ -43,6 +43,7 @@ library Errors {
     error FollowNotApproved();
     error MintLimitExceeded();
     error CollectNotAllowed();
+    error InsufficientAllowance();
 
     // MultiState Errors
     error Paused();

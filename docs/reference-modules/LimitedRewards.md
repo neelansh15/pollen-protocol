@@ -1,3 +1,14 @@
+# Limited Rewards
+Distribute token rewards on repost equally to the first `n` users from the profile owner's wallet.  
+Can set whether a user needs to be a follower to Comment or Repost.
+
+## Deployment
+```
+0x00
+```
+
+## Source Code
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.10;
@@ -132,3 +143,5 @@ contract LimitedRewardReferenceModule is
         return _dataByPublicationByProfile[profileId][pubId];
     }
 }
+
+```

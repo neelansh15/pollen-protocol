@@ -55,6 +55,19 @@ export default {
                         link: "/follow-modules/ProfileMultipleORGated"
                     },
                 ]
+            },
+            {
+                text: 'Reference Modules',
+                items: [
+                    {
+                        text: "Introduction",
+                        link: "/reference-modules/"
+                    },
+                    {
+                        text: "Limited Rewards",
+                        link: "/reference-modules/LimitedRewards"
+                    },
+                ]
             }
         ]
     }

@@ -35,16 +35,16 @@ export default {
                         link: "/follow-modules/"
                     },
                     {
-                        text: "ERC721 Gated",
-                        link: "/follow-modules/ERC721Gated"
+                        text: "NFT Gated",
+                        link: "/follow-modules/NFTGated"
                     },
                     {
-                        text: "ERC721 Multiple AND Gated",
-                        link: "/follow-modules/ERC721MultipleANDGated"
+                        text: "NFT Multiple AND Gated",
+                        link: "/follow-modules/NFTMultipleANDGated"
                     },
                     {
-                        text: "ERC721 Multiple OR Gated",
-                        link: "/follow-modules/ERC721MultipleORGated"
+                        text: "NFT Multiple OR Gated",
+                        link: "/follow-modules/NFTMultipleORGated"
                     },
                     {
                         text: "Profile Multiple AND Gated",

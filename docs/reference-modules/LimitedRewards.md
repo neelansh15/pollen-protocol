@@ -32,7 +32,7 @@ struct ProfilePublicationData {
 
 /**
  * @title LimitedRewardReferenceModule
- * @author Lens Protocol
+ * @author Neelansh Mathur
  *
  * @notice A simple reference module that validates that comments or mirrors originate from a profile owned
  * by a follower and distributes rewards equally to a limited number of mirrors.

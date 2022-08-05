@@ -1,7 +1,13 @@
 export default {
     title: 'Pollen Protocol',
     description: 'Modules for the Lens Protocol',
+    head: [
+        ['link', { rel: "apple-touch-icon", sizes: "180x180", href: "https://files.readme.io/3f3641a-small-herb_1f33f.png" }],
+        ['link', { rel: "icon", type: "image/png", sizes: "32x32", href: "https://files.readme.io/3f3641a-small-herb_1f33f.png" }],
+        ['link', { rel: "icon", type: "image/png", sizes: "16x16", href: "https://files.readme.io/3f3641a-small-herb_1f33f.png" }],
+    ],
     themeConfig: {
+        logo: 'https://files.readme.io/3f3641a-small-herb_1f33f.png',
         editLink: {
             pattern: 'https://github.com/neelansh15/pollen-protocol/edit/main/docs/:path'
         },

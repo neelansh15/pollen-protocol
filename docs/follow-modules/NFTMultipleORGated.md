@@ -1,6 +1,6 @@
-# ERC721 Multiple OR Gated
+# NFT Multiple OR Gated
 
-Allow follow if the user holds **at least one** of the NFTs set by the profile owner.
+Allow follow if the user holds **at least one** of the ERC721 NFTs set by the profile owner.
 
 ## Deployment
 

@@ -1,5 +1,5 @@
-# ERC721 Gated
-Allow follow only if the user holds a certain NFT.  
+# NFT Gated
+Allow follow only if the user holds a certain ERC721 NFT.  
 The NFT address should not be zero.
 
 ## Deployment

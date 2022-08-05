@@ -16,7 +16,6 @@ struct ProfilePublicationData {
     uint256 currentMirrors;
     uint256 amount;
     address currency;
-    address rewarder;
     bool followerOnly;
 }
 
@@ -47,24 +46,22 @@ contract LimitedRewardReferenceModule is
         uint256 pubId,
         bytes calldata data
     ) external override returns (bytes memory) {
-        (
-            uint256 amount,
-            uint256 mirrorLimit,
-            address currency,
-            address rewarder,
-            bool followerOnly
-        ) = abi.decode(data, (uint256, uint256, address, address, bool));
+        (uint256 amount, uint256 mirrorLimit, address currency, bool followerOnly) = abi.decode(
+            data,
+            (uint256, uint256, address, bool)
+        );
 
         if (!_currencyWhitelisted(currency) || amount == 0) revert Errors.InitParamsInvalid();
 
-        if (IERC20(currency).allowance(rewarder, address(this)) < amount)
+        address profileOwner = IERC721(HUB).ownerOf(profileId);
+
+        if (IERC20(currency).allowance(profileOwner, address(this)) < amount)
             revert Errors.InsufficientAllowance();
 
         _dataByPublicationByProfile[profileId][pubId].amount = amount;
         _dataByPublicationByProfile[profileId][pubId].currency = currency;
         _dataByPublicationByProfile[profileId][pubId].followerOnly = followerOnly;
         _dataByPublicationByProfile[profileId][pubId].mirrorLimit = mirrorLimit;
-        _dataByPublicationByProfile[profileId][pubId].rewarder = rewarder;
 
         return data;
     }
@@ -98,6 +95,8 @@ contract LimitedRewardReferenceModule is
         bytes calldata data
     ) external override {
         address mirrorCreator = IERC721(HUB).ownerOf(profileId);
+        address profileOwner = IERC721(HUB).ownerOf(profileIdPointed);
+
         if (_dataByPublicationByProfile[profileIdPointed][pubIdPointed].followerOnly) {
             _checkFollowValidity(profileIdPointed, mirrorCreator);
         }
@@ -114,11 +113,7 @@ contract LimitedRewardReferenceModule is
                 .amount / _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit;
 
             IERC20(_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency)
-                .safeTransferFrom(
-                    _dataByPublicationByProfile[profileIdPointed][pubIdPointed].rewarder,
-                    mirrorCreator,
-                    rewardAmount
-                );
+                .safeTransferFrom(profileOwner, mirrorCreator, rewardAmount);
         }
     }
 

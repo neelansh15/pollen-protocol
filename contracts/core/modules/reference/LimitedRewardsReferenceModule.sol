@@ -6,7 +6,7 @@ import {IReferenceModule} from '../../../interfaces/IReferenceModule.sol';
 import {ModuleBase} from '../ModuleBase.sol';
 import {Errors} from '../../../libraries/Errors.sol';
 import {FollowValidationModuleBase} from '../FollowValidationModuleBase.sol';
-import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {IERC20Metadata as IERC20} from '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import {FeeModuleBase} from '../FeeModuleBase.sol';
@@ -106,9 +106,13 @@ contract LimitedRewardReferenceModule is
         } else {
             ++_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors;
 
+            uint8 decimals = IERC20(
+                _dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency
+            ).decimals();
+
             // Equally distributed rewards: Reward = amount / mirrorLimit
             uint256 rewardAmount = (_dataByPublicationByProfile[profileIdPointed][pubIdPointed]
-                .amount * 10**18) /
+                .amount * 10**decimals) /
                 _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit;
 
             IERC20(_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency)

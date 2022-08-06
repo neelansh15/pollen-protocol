@@ -93,13 +93,6 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
       token.connect(user).approve(limitedRewardsReferenceModule.address, tokenAmount)
     ).to.not.be.reverted;
 
-    console.log(
-      'Allowance of module',
-      +formatEther(
-        await token.allowance(await user.getAddress(), limitedRewardsReferenceModule.address)
-      )
-    );
-
     await expect(
       lensHub.post({
         profileId: FIRST_PROFILE_ID,
@@ -436,7 +429,7 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
         ).to.not.be.reverted;
       });
 
-      it.only('User should receive tokens on mirroring the publication', async function () {
+      it.only('User should receive a calculated amount of tokens on mirroring the publication', async function () {
         await expect(lensHub.follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
 
         await expect(
@@ -451,9 +444,9 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
         ).to.not.be.reverted;
 
         const publicationData = await limitedRewardsReferenceModule.getPublicationData(1, 1);
+        
         const totalRewardAmount = publicationData.amount;
         const mirrorLimit = publicationData.mirrorLimit;
-
         const rewardAmount = +formatEther(totalRewardAmount.div(mirrorLimit)) * 10 ** 18;
 
         const finalAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));

@@ -1,7 +1,7 @@
-# Limited Rewards Exponential
+# Limited Rewards Exponentially Decreasing
 
 Distribute token rewards on repost to the first `n` users from the profile owner's wallet.  
-The rewards will be decreasing exponentially according to the formula:
+The amount of rewards will be decreasing exponentially per new mint according to the formula:
 
 **y = 2<sup>-x</sup>**
 

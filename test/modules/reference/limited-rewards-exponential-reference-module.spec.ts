@@ -8,7 +8,7 @@ import { getTimestamp, matchEvent, waitForTx } from '../../helpers/utils';
 import {
   freeCollectModule,
   FIRST_PROFILE_ID,
-  limitedRewardsReferenceModule,
+  limitedRewardsExponentialReferenceModule,
   governance,
   lensHub,
   makeSuiteCleanRoom,
@@ -27,8 +27,9 @@ import {
   followerOnlyReferenceModule,
 } from '../../__setup.spec';
 
-makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
+makeSuiteCleanRoom('Limited Rewards Exponential Reference Module', function () {
   const SECOND_PROFILE_ID = FIRST_PROFILE_ID + 1;
+  const THIRD_PROFILE_ID = SECOND_PROFILE_ID + 1;
 
   beforeEach(async function () {
     await expect(
@@ -59,7 +60,7 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
     await expect(
       lensHub
         .connect(governance)
-        .whitelistReferenceModule(limitedRewardsReferenceModule.address, true)
+        .whitelistReferenceModule(limitedRewardsExponentialReferenceModule.address, true)
     ).to.not.be.reverted;
     await expect(
       lensHub.connect(governance).whitelistCollectModule(freeCollectModule.address, true)
@@ -80,17 +81,18 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
     //   })
     // ).to.not.be.reverted;
     const tokenAmount = parseEther('10000');
+    const mirrorLimit = parseEther('100');
 
     // Token Amount, Mirror Limit, Token Address, Follower only
     const data = abiCoder.encode(
       ['uint256', 'uint256', 'address', 'bool'],
-      [tokenAmount, parseEther('100'), token.address, false]
+      [tokenAmount, mirrorLimit, token.address, false]
     );
 
     await token.connect(user).mint(parseEther('100000'));
 
     await expect(
-      token.connect(user).approve(limitedRewardsReferenceModule.address, tokenAmount)
+      token.connect(user).approve(limitedRewardsExponentialReferenceModule.address, tokenAmount)
     ).to.not.be.reverted;
 
     await expect(
@@ -99,14 +101,14 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
         contentURI: MOCK_URI,
         collectModule: freeCollectModule.address,
         collectModuleInitData: abiCoder.encode(['bool'], [true]),
-        referenceModule: limitedRewardsReferenceModule.address,
+        referenceModule: limitedRewardsExponentialReferenceModule.address,
         referenceModuleInitData: data,
       })
     ).to.not.be.reverted;
   });
 
   context('Negatives', function () {
-    // TODO: We need a `publishing` or `initialization` context too because initialization can revert in the LimitedRewardsReferenceModule.
+    // TODO: We need a `publishing` or `initialization` context too because initialization can revert in the limitedRewardsExponentialReferenceModule.
     context('Commenting', function () {
       it('Commenting should fail if commenter is not a follower and follow NFT not yet deployed', async function () {
         await expect(
@@ -187,6 +189,46 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
           })
         ).to.be.revertedWith(ERRORS.FOLLOW_INVALID);
       });
+
+      it.only('Mirroring should fail if attempted more than once', async function () {
+        await expect(lensHub.follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
+
+        const initialAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));
+        console.log({ initialAmount });
+
+        await expect(
+          lensHub.connect(userTwo).mirror({
+            profileId: SECOND_PROFILE_ID,
+            profileIdPointed: FIRST_PROFILE_ID,
+            pubIdPointed: 1,
+            referenceModuleData: [],
+            referenceModule: ZERO_ADDRESS,
+            referenceModuleInitData: [],
+          })
+        ).to.not.be.reverted;
+
+        await expect(
+          lensHub.connect(userTwo).mirror({
+            profileId: SECOND_PROFILE_ID,
+            profileIdPointed: FIRST_PROFILE_ID,
+            pubIdPointed: 1,
+            referenceModuleData: [],
+            referenceModule: ZERO_ADDRESS,
+            referenceModuleInitData: [],
+          })
+        ).to.be.reverted;
+
+        // const publicationData = await limitedRewardsExponentialReferenceModule.getPublicationData(1, 1);
+
+        // const totalRewardAmount = publicationData.amount;
+        // const mirrorLimit = publicationData.mirrorLimit;
+        // const rewardAmount = +formatEther(totalRewardAmount.div(mirrorLimit)) * 10 ** 18;
+
+        const finalAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));
+        console.log({ finalAmount });
+
+        // expect(finalAmount).to.equal(rewardAmount);
+      });
     });
   });
 
@@ -198,7 +240,7 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
           contentURI: MOCK_URI,
           collectModule: freeCollectModule.address,
           collectModuleInitData: abiCoder.encode(['bool'], [true]),
-          referenceModule: limitedRewardsReferenceModule.address,
+          referenceModule: limitedRewardsExponentialReferenceModule.address,
           referenceModuleInitData: [],
         });
         const receipt = await waitForTx(tx);
@@ -210,7 +252,7 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
           MOCK_URI,
           freeCollectModule.address,
           abiCoder.encode(['bool'], [true]),
-          limitedRewardsReferenceModule.address,
+          limitedRewardsExponentialReferenceModule.address,
           [],
           await getTimestamp(),
         ]);
@@ -429,8 +471,11 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
         ).to.not.be.reverted;
       });
 
-      it('User should receive a calculated amount of tokens on mirroring the publication', async function () {
+      it.only('User should receive a calculated amount of tokens on mirroring the publication', async function () {
         await expect(lensHub.follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
+
+        const initialAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));
+        console.log({ initialAmount });
 
         await expect(
           lensHub.connect(userTwo).mirror({
@@ -443,15 +488,16 @@ makeSuiteCleanRoom('Limited Rewards Reference Module', function () {
           })
         ).to.not.be.reverted;
 
-        const publicationData = await limitedRewardsReferenceModule.getPublicationData(1, 1);
+        // const publicationData = await limitedRewardsExponentialReferenceModule.getPublicationData(1, 1);
 
-        const totalRewardAmount = publicationData.amount;
-        const mirrorLimit = publicationData.mirrorLimit;
-        const rewardAmount = +formatEther(totalRewardAmount.div(mirrorLimit)) * 10 ** 18;
+        // const totalRewardAmount = publicationData.amount;
+        // const mirrorLimit = publicationData.mirrorLimit;
+        // const rewardAmount = +formatEther(totalRewardAmount.div(mirrorLimit)) * 10 ** 18;
 
         const finalAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));
+        console.log({ finalAmount });
 
-        expect(finalAmount).to.equal(rewardAmount);
+        // expect(finalAmount).to.equal(rewardAmount);
       });
     });
   });

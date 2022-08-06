@@ -62,6 +62,8 @@ import {
   MultipleOrERC721GateFollowModule__factory,
   LimitedRewardReferenceModule,
   LimitedRewardReferenceModule__factory,
+  LimitedRewardsExponentialReferenceModule,
+  LimitedRewardsExponentialReferenceModule__factory,
   Token,
   Token__factory,
 } from '../typechain-types';
@@ -152,6 +154,7 @@ export let multipleOrErc721FollowModule: MultipleOrERC721GateFollowModule;
 export let followerOnlyReferenceModule: FollowerOnlyReferenceModule;
 export let mockReferenceModule: MockReferenceModule;
 export let limitedRewardsReferenceModule: LimitedRewardReferenceModule;
+export let limitedRewardsExponentialReferenceModule: LimitedRewardsExponentialReferenceModule;
 
 export function makeSuiteCleanRoom(name: string, tests: () => void) {
   describe(name, () => {
@@ -289,6 +292,11 @@ before(async function () {
     lensHub.address,
     moduleGlobals.address
   );
+  limitedRewardsExponentialReferenceModule =
+    await new LimitedRewardsExponentialReferenceModule__factory(deployer).deploy(
+      lensHub.address,
+      moduleGlobals.address
+    );
 
   mockFollowModule = await new MockFollowModule__factory(deployer).deploy();
   mockReferenceModule = await new MockReferenceModule__factory(deployer).deploy();

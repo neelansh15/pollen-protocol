@@ -44,6 +44,7 @@ library Errors {
     error MintLimitExceeded();
     error CollectNotAllowed();
     error InsufficientAllowance();
+    error AlreadyMinted();
 
     // MultiState Errors
     error Paused();

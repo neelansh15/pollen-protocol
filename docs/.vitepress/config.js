@@ -73,6 +73,10 @@ export default {
                         text: "Limited Rewards",
                         link: "/reference-modules/LimitedRewards"
                     },
+                    {
+                        text: "Limited Rewards Exponential",
+                        link: "/reference-modules/LimitedRewardsExponential"
+                    },
                 ]
             }
         ]

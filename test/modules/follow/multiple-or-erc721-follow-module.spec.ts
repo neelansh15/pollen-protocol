@@ -47,7 +47,7 @@ makeSuiteCleanRoom('Multiple OR ERC721 Gated Follow Module', function () {
     });
 
     context('Processing follow', function () {
-      it.only('User should fail to process follow if the user does not own any of the NFTs', async function () {
+      it('User should fail to process follow if the user does not own any of the NFTs', async function () {
         const data = abiCoder.encode(
           ['address[]'],
           [[myNFT.address, myNFT2.address, myNFT3.address]]
@@ -77,7 +77,7 @@ makeSuiteCleanRoom('Multiple OR ERC721 Gated Follow Module', function () {
     });
 
     context('Processing follow', function () {
-      it.only('UserTwo should be able to follow if the user owns all the NFTs', async function () {
+      it('UserTwo should be able to follow if the user owns all the NFTs', async function () {
         const data = abiCoder.encode(
           ['address[]'],
           [[myNFT.address, myNFT2.address, myNFT3.address]]
@@ -100,7 +100,7 @@ makeSuiteCleanRoom('Multiple OR ERC721 Gated Follow Module', function () {
         await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
       });
 
-      it.only('User should be able to follow if the user owns some but not all of the NFTs', async function () {
+      it('User should be able to follow if the user owns some but not all of the NFTs', async function () {
         const data = abiCoder.encode(
           ['address[]'],
           [[myNFT.address, myNFT2.address, myNFT3.address]]

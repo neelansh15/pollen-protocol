@@ -60,6 +60,10 @@ import {
   MultipleAndERC721GateFollowModule__factory,
   MultipleOrERC721GateFollowModule,
   MultipleOrERC721GateFollowModule__factory,
+  LimitedRewardReferenceModule,
+  LimitedRewardReferenceModule__factory,
+  Token,
+  Token__factory,
 } from '../typechain-types';
 import { LensHubLibraryAddresses } from '../typechain-types/factories/LensHub__factory';
 import { FAKE_PRIVATEKEY, ZERO_ADDRESS } from './helpers/constants';
@@ -115,11 +119,13 @@ export let lensPeriphery: LensPeriphery;
 export let followNFTImpl: FollowNFT;
 export let collectNFTImpl: CollectNFT;
 
-/* Test NFTs */
+/* Test Tokens */
 
 export let myNFT: MyNFT;
 export let myNFT2: MyNFT;
 export let myNFT3: MyNFT;
+
+export let token: Token;
 
 /* Modules */
 
@@ -145,6 +151,7 @@ export let multipleOrErc721FollowModule: MultipleOrERC721GateFollowModule;
 // Reference
 export let followerOnlyReferenceModule: FollowerOnlyReferenceModule;
 export let mockReferenceModule: MockReferenceModule;
+export let limitedRewardsReferenceModule: LimitedRewardReferenceModule;
 
 export function makeSuiteCleanRoom(name: string, tests: () => void) {
   describe(name, () => {
@@ -230,10 +237,12 @@ before(async function () {
   // Currency
   currency = await new Currency__factory(deployer).deploy();
 
-  // Test NFTs
+  // Test Tokens
   myNFT = await new MyNFT__factory(deployer).deploy();
   myNFT2 = await new MyNFT__factory(deployer).deploy();
   myNFT3 = await new MyNFT__factory(deployer).deploy();
+
+  token = await new Token__factory(deployer).deploy();
 
   // Modules
   freeCollectModule = await new FreeCollectModule__factory(deployer).deploy(lensHub.address);
@@ -274,6 +283,12 @@ before(async function () {
   multipleOrErc721FollowModule = await new MultipleOrERC721GateFollowModule__factory(
     deployer
   ).deploy(lensHub.address);
+
+  // Pollen Reference Modules
+  limitedRewardsReferenceModule = await new LimitedRewardReferenceModule__factory(deployer).deploy(
+    lensHub.address,
+    moduleGlobals.address
+  );
 
   mockFollowModule = await new MockFollowModule__factory(deployer).deploy();
   mockReferenceModule = await new MockReferenceModule__factory(deployer).deploy();

@@ -107,8 +107,9 @@ contract LimitedRewardReferenceModule is
             ++_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors;
 
             // Equally distributed rewards: Reward = amount / mirrorLimit
-            uint256 rewardAmount = _dataByPublicationByProfile[profileIdPointed][pubIdPointed]
-                .amount / _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit;
+            uint256 rewardAmount = (_dataByPublicationByProfile[profileIdPointed][pubIdPointed]
+                .amount * 10**18) /
+                _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit;
 
             IERC20(_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency)
                 .safeTransferFrom(profileOwner, mirrorCreator, rewardAmount);

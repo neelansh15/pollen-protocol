@@ -14,7 +14,7 @@ import {FeeModuleBase} from '../FeeModuleBase.sol';
 struct ProfilePublicationData {
     uint256 mirrorLimit;
     uint256 currentMirrors;
-    uint256 amount;
+    uint256 amount; // Max amount that can be given
     address currency;
     bool followerOnly;
 }
@@ -35,6 +35,8 @@ contract LimitedRewardReferenceModule is
 
     mapping(uint256 => mapping(uint256 => ProfilePublicationData))
         internal _dataByPublicationByProfile;
+
+    mapping(uint256 => mapping(uint256 => mapping(uint256 => bool))) internal _hasMirrored;
 
     constructor(address hub, address moduleGlobals) FeeModuleBase(moduleGlobals) ModuleBase(hub) {}
 
@@ -98,6 +100,13 @@ contract LimitedRewardReferenceModule is
         if (_dataByPublicationByProfile[profileIdPointed][pubIdPointed].followerOnly) {
             _checkFollowValidity(profileIdPointed, mirrorCreator);
         }
+
+        if (_hasMirrored[profileIdPointed][pubIdPointed][profileId]) {
+            revert Errors.AlreadyMinted();
+        } else {
+            _hasMirrored[profileIdPointed][pubIdPointed][profileId] = true;
+        }
+
         if (
             _dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors >=
             _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit

@@ -1,9 +1,14 @@
 # Limited Rewards Exponential
 
 Distribute token rewards on repost to the first `n` users from the profile owner's wallet.  
-The rewards will be decreasing exponentially according to the formula y = 2<sup>-x</sup>, where  
+The rewards will be decreasing exponentially according to the formula:
+
+**y = 2<sup>-x</sup>**
+
+```
 y = Reward amount
-x = Current no. of mirrors on the publication
+x = No. of mirrors on the publication + 1
+```
 
 Can set whether a user needs to be a follower to Comment or Repost.
 
@@ -131,10 +136,6 @@ contract LimitedRewardsExponentialReferenceModule is
       revert Errors.MintLimitExceeded();
     } else {
       ++_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors;
-
-      // uint8 decimals = IERC20(
-      //     _dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency
-      // ).decimals();
 
       // Exponentially distributed rewards. Equation: y = 2^-x
       uint256 numerator = _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount;

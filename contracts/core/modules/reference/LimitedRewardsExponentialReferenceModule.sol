@@ -114,10 +114,6 @@ contract LimitedRewardsExponentialReferenceModule is
         } else {
             ++_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors;
 
-            // uint8 decimals = IERC20(
-            //     _dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency
-            // ).decimals();
-
             // Exponentially distributed rewards. Equation: y = 2^-x
             uint256 numerator = _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount;
             uint256 denominator = 2 **

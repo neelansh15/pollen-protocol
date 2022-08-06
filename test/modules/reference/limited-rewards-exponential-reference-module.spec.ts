@@ -25,6 +25,7 @@ import {
   token,
   moduleGlobals,
   followerOnlyReferenceModule,
+  userThree,
 } from '../../__setup.spec';
 
 makeSuiteCleanRoom('Limited Rewards Exponential Reference Module', function () {
@@ -486,7 +487,21 @@ makeSuiteCleanRoom('Limited Rewards Exponential Reference Module', function () {
             referenceModule: ZERO_ADDRESS,
             referenceModuleInitData: [],
           })
-        ).to.not.be.reverted;
+        ).to.be.revertedWith('YAY');
+
+        await expect(
+          lensHub.connect(userThree).mirror({
+            profileId: THIRD_PROFILE_ID,
+            profileIdPointed: FIRST_PROFILE_ID,
+            pubIdPointed: 1,
+            referenceModuleData: [],
+            referenceModule: ZERO_ADDRESS,
+            referenceModuleInitData: [],
+          })
+        ).to.be.revertedWith('YAY');
+
+        const balanceUser3 = +formatEther(await token.balanceOf(await userThree.getAddress()));
+        console.log({ balanceUser3 });
 
         // const publicationData = await limitedRewardsExponentialReferenceModule.getPublicationData(1, 1);
 

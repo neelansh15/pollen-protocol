@@ -114,13 +114,7 @@ contract LimitedRewardsExponentialReferenceModule is
         } else {
             ++_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors;
 
-            // Exponentially distributed rewards. Equation: y = 2^-x
-            uint256 numerator = _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount;
-            uint256 denominator = 2 **
-                ((_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors /
-                    10**18) + 1);
-
-            uint256 rewardAmount = numerator / denominator;
+            uint256 rewardAmount = _calculateRewardAmount(profileIdPointed, pubIdPointed);
 
             _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount -= rewardAmount;
 
@@ -144,5 +138,23 @@ contract LimitedRewardsExponentialReferenceModule is
         returns (ProfilePublicationData memory)
     {
         return _dataByPublicationByProfile[profileId][pubId];
+    }
+
+    function _calculateRewardAmount(uint256 profileIdPointed, uint256 pubIdPointed)
+        private
+        view
+        returns (uint256)
+    {
+        // Exponentially distributed rewards. Equation: y = 2^-x - 2^-mirrorLimit
+        uint256 numerator = _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount;
+        uint256 denominator = (2 **
+            ((_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors / 10**18) +
+                1)) -
+            (2 **
+                ((_dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit /
+                    10**18) + 1));
+
+        uint256 rewardAmount = numerator / denominator;
+        return rewardAmount;
     }
 }

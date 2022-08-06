@@ -124,6 +124,8 @@ contract LimitedRewardReferenceModule is
                 .amount * 10**decimals) /
                 _dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit;
 
+            _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount -= rewardAmount;
+
             IERC20(_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currency)
                 .safeTransferFrom(profileOwner, mirrorCreator, rewardAmount);
         }

@@ -36,7 +36,7 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
     mnemonic: MNEMONIC,
     path: MNEMONIC_PATH,
     initialIndex: 0,
-    count: 20,
+    count: 3,
   },
 });
 
@@ -72,6 +72,15 @@ const config: HardhatUserConfig = {
     matic: getCommonNetworkConfig(ePolygonNetwork.matic, 137),
     mumbai: getCommonNetworkConfig(ePolygonNetwork.mumbai, 80001),
     xdai: getCommonNetworkConfig(eXDaiNetwork.xdai, 100),
+    goerli: {
+      url: process.env.GOERLI_RPC_URL,
+      accounts: {
+        mnemonic: MNEMONIC,
+        path: MNEMONIC_PATH,
+        initialIndex: 0,
+        count: 3,
+      },
+    },
     hardhat: {
       hardfork: 'london',
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,

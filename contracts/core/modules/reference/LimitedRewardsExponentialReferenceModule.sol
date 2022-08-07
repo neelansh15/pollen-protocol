@@ -145,14 +145,11 @@ contract LimitedRewardsExponentialReferenceModule is
         view
         returns (uint256)
     {
-        // Exponentially distributed rewards. Equation: y = 2^-x - 2^-mirrorLimit
+        // Exponentially distributed rewards. Equation: y = 2^-x
         uint256 numerator = _dataByPublicationByProfile[profileIdPointed][pubIdPointed].amount;
-        uint256 denominator = (2 **
+        uint256 denominator = 2 **
             ((_dataByPublicationByProfile[profileIdPointed][pubIdPointed].currentMirrors / 10**18) +
-                1)) -
-            (2 **
-                ((_dataByPublicationByProfile[profileIdPointed][pubIdPointed].mirrorLimit /
-                    10**18) + 1));
+                1);
 
         uint256 rewardAmount = numerator / denominator;
         return rewardAmount;

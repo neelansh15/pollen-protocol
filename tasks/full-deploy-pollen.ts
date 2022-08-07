@@ -10,7 +10,14 @@ import {
   FreeCollectModule__factory,
   FeeCollectModule__factory,
   FeeFollowModule__factory,
+  ERC721GateFollowModule__factory,
+  MultipleAndERC721GateFollowModule__factory,
+  MultipleOrERC721GateFollowModule__factory,
+  ProfilesGateAndFollowModule__factory,
+  ProfilesGateOrFollowModule__factory,
   FollowerOnlyReferenceModule__factory,
+  LimitedRewardReferenceModule__factory,
+  LimitedRewardsExponentialReferenceModule__factory,
   FollowNFT__factory,
   InteractionLogic__factory,
   LimitedFeeCollectModule__factory,
@@ -33,7 +40,7 @@ const TREASURY_FEE_BPS = 50;
 const LENS_HUB_NFT_NAME = 'Lens Protocol Profiles';
 const LENS_HUB_NFT_SYMBOL = 'LPP';
 
-task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre) => {
+task('full-deploy-pollen', 'deploys the entire Lens Protocol').setAction(async ({}, hre) => {
   // Note that the use of these signers is a placeholder and is not meant to be used in
   // production.
   const ethers = hre.ethers;
@@ -193,6 +200,42 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
       nonce: deployerNonce++,
     })
   );
+
+  console.log('\n\t-- Deploying erc721GateFollowModule --');
+  const erc721GateFollowModule = await deployContract(
+    new ERC721GateFollowModule__factory(deployer).deploy(lensHub.address, {
+      nonce: deployerNonce++,
+    })
+  );
+
+  console.log('\n\t-- Deploying multipleAndERC721GateFollowModule --');
+  const multipleAndERC721GateFollowModule = await deployContract(
+    new MultipleAndERC721GateFollowModule__factory(deployer).deploy(lensHub.address, {
+      nonce: deployerNonce++,
+    })
+  );
+
+  console.log('\n\t-- Deploying erc721multipleOrERC721GateFollowModuleGateFollowModule --');
+  const multipleOrERC721GateFollowModule = await deployContract(
+    new MultipleOrERC721GateFollowModule__factory(deployer).deploy(lensHub.address, {
+      nonce: deployerNonce++,
+    })
+  );
+
+  console.log('\n\t-- Deploying ProfilesGateAndFollowModule --');
+  const profilesGateAndFollowModule = await deployContract(
+    new ProfilesGateAndFollowModule__factory(deployer).deploy(lensHub.address, {
+      nonce: deployerNonce++,
+    })
+  );
+
+  console.log('\n\t-- Deploying ProfilesGateOrFollowModule --');
+  const profilesGateOrFollowModule = await deployContract(
+    new ProfilesGateOrFollowModule__factory(deployer).deploy(lensHub.address, {
+      nonce: deployerNonce++,
+    })
+  );
+
   // --- COMMENTED OUT AS THIS IS NOT A LAUNCH MODULE ---
   // console.log('\n\t-- Deploying approvalFollowModule --');
   // const approvalFollowModule = await deployContract(
@@ -205,6 +248,28 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
     new FollowerOnlyReferenceModule__factory(deployer).deploy(lensHub.address, {
       nonce: deployerNonce++,
     })
+  );
+
+  console.log('\n\t-- Deploying LimitedRewardsReferenceModule --');
+  const limitedRewardsReferenceModule = await deployContract(
+    new LimitedRewardReferenceModule__factory(deployer).deploy(
+      lensHub.address,
+      moduleGlobals.address,
+      {
+        nonce: deployerNonce++,
+      }
+    )
+  );
+
+  console.log('\n\t-- Deploying LimitedRewardsExponentialReferenceModule --');
+  const limitedRewardsExponentialReferenceModule = await deployContract(
+    new LimitedRewardsExponentialReferenceModule__factory(deployer).deploy(
+      lensHub.address,
+      moduleGlobals.address,
+      {
+        nonce: deployerNonce++,
+      }
+    )
   );
 
   // Deploy UIDataProvider
@@ -261,6 +326,31 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
   await waitForTx(
     lensHub.whitelistFollowModule(revertFollowModule.address, true, { nonce: governanceNonce++ })
   );
+  await waitForTx(
+    lensHub.whitelistFollowModule(erc721GateFollowModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistFollowModule(multipleAndERC721GateFollowModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistFollowModule(multipleOrERC721GateFollowModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistFollowModule(profilesGateAndFollowModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistFollowModule(profilesGateOrFollowModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
   // --- COMMENTED OUT AS THIS IS NOT A LAUNCH MODULE ---
   // await waitForTx(
   // lensHub.whitelistFollowModule(approvalFollowModule.address, true, { nonce: governanceNonce++ })
@@ -270,6 +360,16 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
   console.log('\n\t-- Whitelisting Reference Module --');
   await waitForTx(
     lensHub.whitelistReferenceModule(followerOnlyReferenceModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistReferenceModule(limitedRewardsReferenceModule.address, true, {
+      nonce: governanceNonce++,
+    })
+  );
+  await waitForTx(
+    lensHub.whitelistReferenceModule(limitedRewardsReferenceModule.address, true, {
       nonce: governanceNonce++,
     })
   );
@@ -315,6 +415,15 @@ task('full-deploy', 'deploys the entire Lens Protocol').setAction(async ({}, hre
     'follower only reference module': followerOnlyReferenceModule.address,
     'UI data provider': uiDataProvider.address,
     'Profile creation proxy': profileCreationProxy.address,
+    // Pollen
+    'erc721 gated follow module': erc721GateFollowModule.address,
+    'multiple and erc721 gated follow module': multipleAndERC721GateFollowModule.address,
+    'multiple or erc721 gated follow module': multipleOrERC721GateFollowModule.address,
+    'profile and gated follow module': profilesGateAndFollowModule.address,
+    'profile or gated follow module': profilesGateOrFollowModule.address,
+    'limited rewards reference module': limitedRewardsReferenceModule.address,
+    'limited rewards exponential reference module':
+      limitedRewardsExponentialReferenceModule.address,
   };
   const json = JSON.stringify(addrs, null, 2);
   console.log(json);

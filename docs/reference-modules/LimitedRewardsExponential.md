@@ -11,7 +11,7 @@ x = No. of mirrors on the publication + 1
 ```
 
 Can set whether a user needs to be a follower to Comment or Repost.  
-<!-- Note: Limited to 255 people -->
+Note: Limited to 255 users
 
 ## Deployment
 

@@ -2,10 +2,10 @@
 
 Allow follow only if the user holds **all** of the ERC721 NFTs set by the profile owner.
 
-## Deployment
+## Deployments
 
-```
-0x00
+```yaml
+Goerli: 0x7b00f4eb7a58a2a701f88f016327047d4ccbf783
 ```
 
 ## Source Code

@@ -1,12 +1,13 @@
 # Profile Multiple AND Gated
 
-Allow follow only if the user holds follow NFTs of **all** of the Lens Profile IDs set by the profile owner.  
+Allow follow only if the user holds follow NFTs of **all** of the Lens Profile IDs set by the profile owner.
+
 <!-- TODO: Think about allowing follow even if one or more profiles from the list do not have follow NFTs set (address is zero). -->
 
-## Deployment
+## Deployments
 
-```
-0x00
+```yaml
+Goerli: 0xd5d215a11074ad6b8ff1cfc09bae55a97903a1e4
 ```
 
 ## Source Code

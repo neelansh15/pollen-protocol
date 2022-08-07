@@ -3,10 +3,10 @@
 Distribute token rewards on repost equally to the first `n` users from the profile owner's wallet.  
 Can set whether a user needs to be a follower to Comment or Repost.
 
-## Deployment
+## Deployments
 
-```
-0x00
+```yaml
+Goerli: 0x764F81FEffBB5d1e8E39cd28a8e5BDc7a5e027e2 
 ```
 
 ## Source Code

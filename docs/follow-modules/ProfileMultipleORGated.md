@@ -2,10 +2,10 @@
 
 Allow follow only if the user holds follow NFTs of **at least one** of the Lens Profile IDs set by the profile owner.
 
-## Deployment
+## Deployments
 
-```
-0x00
+```yaml
+Goerli: 0x1a53cb230d9b45b4353097d51e5657b12d1ec928
 ```
 
 ## Source Code

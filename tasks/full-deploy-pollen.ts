@@ -369,7 +369,7 @@ task('full-deploy-pollen', 'deploys the entire Lens Protocol').setAction(async (
     })
   );
   await waitForTx(
-    lensHub.whitelistReferenceModule(limitedRewardsReferenceModule.address, true, {
+    lensHub.whitelistReferenceModule(limitedRewardsExponentialReferenceModule.address, true, {
       nonce: governanceNonce++,
     })
   );

@@ -1,3 +1,15 @@
+# Pollen Protocol (Public Goods)
+> OpenZeppelin for the Lens Protocol. 
+
+Built during the [Polygon Fellowship 2022](https://blog.polygon.technology/say-hi-to-polygon-fellowship-class-of-2022/) and the Polygon BUIDL IT Hackathon.  
+
+Check out the project on Devfolio: https://devfolio.co/projects/pollen-protocol-5aa0.  
+Main Site: http://pollenprotocol.surge.sh/.  
+Deployments: http://pollenprotocol.surge.sh/deployments.html.  
+YouTube video: https://youtu.be/yW3HDLmWB-Q.  
+Google Slides Presentation during **Polyon Fellowship 2022**: https://docs.google.com/presentation/d/1MAN1wPFwmAqXb15AnoAiMDF0MXrwth_yiBuJQ7niqbg/edit#slide=id.p
+
+## README from the Fork of Lens:
 ```                                                                                                                       
      &&&&&                        &&&&&&&&&&&&&&&&&&&&&&&&     &&&&&&&&&&              &&&&&         /&&&&&&&&&&&&&&&&&           
      &&&&&                        &&&&&&&&&&&&&&&&&&&&&&&&     &&&&  &&&&&             &&&&&       &&&&&&(        .&&&&&&*        

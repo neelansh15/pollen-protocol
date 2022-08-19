@@ -16,8 +16,6 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 contract ERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => address) public nftByProfile;
 
-    string public description = 'Follow allowed only if you hold a certain NFT';
-
     constructor(address hub) ModuleBase(hub) {}
 
     function initializeFollowModule(uint256 profileId, bytes calldata data)

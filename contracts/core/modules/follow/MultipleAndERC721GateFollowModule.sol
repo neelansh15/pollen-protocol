@@ -16,8 +16,6 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => address[]) public nftsByProfile;
 
-    string public description = 'Follow allowed only if you hold all of the required NFTs';
-
     constructor(address hub) ModuleBase(hub) {}
 
     function initializeFollowModule(uint256 profileId, bytes calldata data)
@@ -51,7 +49,7 @@ contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFoll
         uint256 nftCount = nftsByProfile[_profileId].length;
         address[] memory nfts = new address[](nftCount);
 
-        for(uint256 i = 0; i < nftCount;){
+        for (uint256 i = 0; i < nftCount; ) {
             nfts[i] = nftsByProfile[_profileId][i];
             unchecked {
                 i++;

@@ -69,7 +69,7 @@ contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFoll
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
         if (nftsByProfile[_profileId].length != 0) {
             for (uint256 i = 0; i < nftsByProfile[_profileId].length; ) {
-                if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0) {
+                if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) == 0) {
                     revert Errors.InsufficientBalance();
                 }
                 unchecked {

@@ -3,15 +3,17 @@
 pragma solidity 0.8.10;
 
 import {ModuleBase} from '../ModuleBase.sol';
-import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
+import {Errors} from '../../../libraries/Errors.sol';
 
+import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
 import {IFollowModule} from '../../../interfaces/IFollowModule.sol';
+
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
  * @title MultipleAndERC721GateFollowModule
  * @author Neelansh Mathur
- * @dev Allows holders to follow if they hold all of the set NFTs
+ * @dev A follow module that allows users to follow only if they hold all of the NFTs set by the profile owner.
  **/
 contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFollowModuleBase {
     mapping(uint256 => address[]) public nftsByProfile;
@@ -67,10 +69,9 @@ contract MultipleAndERC721GateFollowModule is IFollowModule, FollowValidatorFoll
     function _checkNftOwnership(address _user, uint256 _profileId) private view {
         if (nftsByProfile[_profileId].length != 0) {
             for (uint256 i = 0; i < nftsByProfile[_profileId].length; ) {
-                require(
-                    IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0,
-                    'INSUFFICIENT_NFT_BALANCE'
-                );
+                if (IERC721(nftsByProfile[_profileId][i]).balanceOf(_user) > 0) {
+                    revert Errors.InsufficientBalance();
+                }
                 unchecked {
                     i++;
                 }

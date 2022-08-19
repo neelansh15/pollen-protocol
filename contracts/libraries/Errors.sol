@@ -45,6 +45,7 @@ library Errors {
     error CollectNotAllowed();
     error InsufficientAllowance();
     error AlreadyMinted();
+    error InsufficientBalance();
 
     // MultiState Errors
     error Paused();

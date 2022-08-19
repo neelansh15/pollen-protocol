@@ -1,5 +1,6 @@
 import '@nomiclabs/hardhat-ethers';
 import { expect } from 'chai';
+import { constants } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { ZERO_ADDRESS } from '../../helpers/constants';
 import { ERRORS } from '../../helpers/errors';
@@ -89,7 +90,9 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
         await myNFT2.connect(userTwo).mint();
         await myNFT3.connect(userTwo).mint();
 
-        await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.be.revertedWith("INSUFFICIENT_NFT_BALANCE");
+        await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.be.revertedWith(
+          'INSUFFICIENT_NFT_BALANCE'
+        );
       });
     });
   });
@@ -130,6 +133,24 @@ makeSuiteCleanRoom('Multiple AND ERC721 Gated Follow Module', function () {
         await myNFT.connect(userTwo).mint();
         await myNFT2.connect(userTwo).mint();
         await myNFT3.connect(userTwo).mint();
+
+        await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
+      });
+      it.only('UserTwo should be able to follow if the NFT is set as zero address', async function () {
+        const data = abiCoder.encode(['address[]'], [[constants.AddressZero]]);
+
+        await lensHub.setFollowModule(
+          FIRST_PROFILE_ID,
+          multipleAndErc721FollowModule.address,
+          data
+        );
+        expect(await lensHub.getFollowModule(FIRST_PROFILE_ID)).to.be.equal(
+          multipleAndErc721FollowModule.address
+        );
+        
+        expect(await multipleAndErc721FollowModule.getNfts(FIRST_PROFILE_ID)).to.have.members([
+          constants.AddressZero,
+        ]);
 
         await expect(lensHub.connect(userTwo).follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
       });

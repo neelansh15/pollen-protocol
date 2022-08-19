@@ -190,7 +190,7 @@ makeSuiteCleanRoom('Limited Rewards Exponential Reference Module', function () {
         ).to.be.revertedWith(ERRORS.FOLLOW_INVALID);
       });
 
-      it.only('Mirroring should fail if attempted more than once', async function () {
+      it('Mirroring should fail if attempted more than once', async function () {
         await expect(lensHub.follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
 
         const initialAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));
@@ -471,7 +471,7 @@ makeSuiteCleanRoom('Limited Rewards Exponential Reference Module', function () {
         ).to.not.be.reverted;
       });
 
-      it.only('User should receive a calculated amount of tokens on mirroring the publication', async function () {
+      it('User should receive a calculated amount of tokens on mirroring the publication', async function () {
         await expect(lensHub.follow([FIRST_PROFILE_ID], [[]])).to.not.be.reverted;
 
         const initialAmount = +formatEther(await token.balanceOf(await userTwo.getAddress()));

@@ -17,6 +17,7 @@ pragma solidity ^0.8.10;
 import {ModuleBase} from '../ModuleBase.sol';
 import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
 import {IFollowModule} from '../../../interfaces/IFollowModule.sol';
+import {Errors} from '../../../libraries/Errors.sol';
 import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
@@ -72,8 +73,8 @@ contract SingleERC1155GateFollowModule is IFollowModule, FollowValidatorFollowMo
         address to,
         uint256 followNFTTokenId
     ) external view override {
-        if (from != address(0)) {
-            require(nftGateByProfile[profileId].transferable, 'FOLLOW_NON_TRANSFERABLE');
+        if (from != address(0) && nftGateByProfile[profileId].transferable == false) {
+            revert Errors.FollowNonTransferable();
         }
         _checkERC1155NftOwnership(to, profileId);
     }
@@ -85,7 +86,7 @@ contract SingleERC1155GateFollowModule is IFollowModule, FollowValidatorFollowMo
         uint256 minAmount,
         bool transferable
     ) external {
-        require(IERC721(HUB).ownerOf(profileId) == msg.sender, 'ONLY_PROFILE_OWNER');
+        if (IERC721(HUB).ownerOf(profileId) != msg.sender) revert Errors.NotProfileOwner();
 
         nftGateByProfile[profileId] = ERC1155GateConfig(
             tokenAddress,
@@ -99,13 +100,13 @@ contract SingleERC1155GateFollowModule is IFollowModule, FollowValidatorFollowMo
         ERC1155GateConfig memory gateConfig = nftGateByProfile[_profileId];
 
         if (gateConfig.tokenAddress != address(0)) {
-            require(
-                IERC1155(gateConfig.tokenAddress).balanceOf(_user, gateConfig.tokenId) >=
-                    gateConfig.minAmount,
-                'INSUFFICIENT_NFT_BALANCE'
-            );
+            if (
+                IERC1155(gateConfig.tokenAddress).balanceOf(_user, gateConfig.tokenId) <
+                gateConfig.minAmount
+            ) {
+                revert Errors.InsufficientBalance();
+            }
         }
     }
 }
-
 ```

@@ -46,6 +46,7 @@ library Errors {
     error InsufficientAllowance();
     error AlreadyMinted();
     error InsufficientBalance();
+    error FollowNonTransferable();
 
     // MultiState Errors
     error Paused();

@@ -25,6 +25,7 @@
   "UI data provider": "0xE8c72cb35dd45209e1FD374A0979CD01e5a1E84C",
   "Profile creation proxy": "0xaF1a075C8e1e82434f289591E3e241Af90A7bA88",
   "erc721 gated follow module": "0x9005262Ac1CBF7A2979769bA320F637d24a7DBEb",
+  "erc1155 gated follow module": "0x3c7aa24474c33C96918Bf313Bf20F08339f0B11B",
   "multiple and erc721 gated follow module": "0x7b00f4EB7a58a2a701f88f016327047d4Ccbf783",
   "multiple or erc721 gated follow module": "0xfe7EdfD1f26ba468F3075702C907D76F5A96e28C",
   "profile and gated follow module": "0xD5D215a11074AD6b8Ff1CFC09bae55A97903a1E4",

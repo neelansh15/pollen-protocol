@@ -13,18 +13,16 @@ contract MyERC1155 is ERC1155 {
     function mint(
         address account,
         uint256 id,
-        uint256 amount,
-        bytes memory data
+        uint256 amount
     ) public {
-        _mint(account, id, amount, data);
+        _mint(account, id, amount, '');
     }
 
     function mintBatch(
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory amounts
     ) public {
-        _mintBatch(to, ids, amounts, data);
+        _mintBatch(to, ids, amounts, '');
     }
 }

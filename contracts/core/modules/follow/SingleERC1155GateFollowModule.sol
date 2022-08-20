@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity ^0.8.10;
 
 import {ModuleBase} from '../ModuleBase.sol';
 import {FollowValidatorFollowModuleBase} from './FollowValidatorFollowModuleBase.sol';
@@ -59,7 +59,9 @@ contract SingleERC1155GateFollowModule is IFollowModule, FollowValidatorFollowMo
         address to,
         uint256 followNFTTokenId
     ) external view override {
-        require(nftGateByProfile[profileId].transferable, 'FOLLOW_NON_TRANSFERABLE');
+        if (from != address(0)) {
+            require(nftGateByProfile[profileId].transferable, 'FOLLOW_NON_TRANSFERABLE');
+        }
         _checkERC1155NftOwnership(to, profileId);
     }
 

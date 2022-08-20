@@ -54,6 +54,10 @@ import {
   RevertFollowModule__factory,
   MyNFT,
   MyNFT__factory,
+  MyERC1155,
+  MyERC1155__factory,
+  SingleERC1155GateFollowModule,
+  SingleERC1155GateFollowModule__factory,
   ERC721GateFollowModule,
   ERC721GateFollowModule__factory,
   MultipleAndERC721GateFollowModule,
@@ -126,7 +130,7 @@ export let collectNFTImpl: CollectNFT;
 export let myNFT: MyNFT;
 export let myNFT2: MyNFT;
 export let myNFT3: MyNFT;
-
+export let myERC1155: MyERC1155;
 export let token: Token;
 
 /* Modules */
@@ -147,6 +151,7 @@ export let revertFollowModule: RevertFollowModule;
 export let mockFollowModule: MockFollowModule;
 
 export let erc721FollowModule: ERC721GateFollowModule;
+export let singleErc1155FollowModule: SingleERC1155GateFollowModule;
 export let multipleAndErc721FollowModule: MultipleAndERC721GateFollowModule;
 export let multipleOrErc721FollowModule: MultipleOrERC721GateFollowModule;
 
@@ -244,6 +249,7 @@ before(async function () {
   myNFT = await new MyNFT__factory(deployer).deploy();
   myNFT2 = await new MyNFT__factory(deployer).deploy();
   myNFT3 = await new MyNFT__factory(deployer).deploy();
+  myERC1155 = await new MyERC1155__factory(deployer).deploy();
 
   token = await new Token__factory(deployer).deploy();
 
@@ -280,6 +286,9 @@ before(async function () {
 
   // Pollen Follow Modules
   erc721FollowModule = await new ERC721GateFollowModule__factory(deployer).deploy(lensHub.address);
+  singleErc1155FollowModule = await new SingleERC1155GateFollowModule__factory(deployer).deploy(
+    lensHub.address
+  );
   multipleAndErc721FollowModule = await new MultipleAndERC721GateFollowModule__factory(
     deployer
   ).deploy(lensHub.address);

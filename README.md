@@ -9,6 +9,8 @@ Deployments: http://pollenprotocol.surge.sh/deployments.html.
 YouTube video: https://youtu.be/yW3HDLmWB-Q.  
 Google Slides Presentation during **Polyon Fellowship 2022**: https://docs.google.com/presentation/d/1MAN1wPFwmAqXb15AnoAiMDF0MXrwth_yiBuJQ7niqbg/edit#slide=id.p
 
+Completed module for reference: https://github.com/neelansh15/pollen-protocol/blob/main/contracts/core/modules/follow/MultipleAndERC721GateFollowModule.sol
+
 ## README from the Fork of Lens:
 ```                                                                                                                       
      &&&&&                        &&&&&&&&&&&&&&&&&&&&&&&&     &&&&&&&&&&              &&&&&         /&&&&&&&&&&&&&&&&&           

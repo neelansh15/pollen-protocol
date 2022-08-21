@@ -1,7 +1,0 @@
-{
-  "name": "frontend",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "vue"
-}

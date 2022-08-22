@@ -1,6 +1,6 @@
 # ERC1155 Gated
 
-Allow follow only if the user's **balance of ERC1155 tokenID superior or equal** to minAmount.  
+Allow follow only if the user's balance of ERC1155 tokenID is **superior or equal** to `minAmount`.  
 
 ## Deployments
 

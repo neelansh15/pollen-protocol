@@ -60,6 +60,10 @@ export default {
                         text: "Profile Multiple OR Gated",
                         link: "/follow-modules/ProfileMultipleORGated"
                     },
+                    {
+                        text: "ERC1155 Gated",
+                        link: "/follow-modules/SingleERC1155Gated"
+                    }
                 ]
             },
             {
